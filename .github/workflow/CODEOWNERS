@@ -1,0 +1,4 @@
+# Người được tự động thêm làm reviewer khi PR chạm vào các file tương ứng.
+# Nếu muốn review thì có thể tự PR vào
+# ví dụ: /database/  @username-cua-TV2
+*                 @VuxSussy
