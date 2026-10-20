@@ -7,10 +7,10 @@
 ## 👨‍💻 Thành viên nhóm
 | # |  Tên  | Vai Trò |
 |---|---|---|
-|01| Võ Lê Anh Vũ | Project Manager|
-|02| TEXT | DEV |
-|03| TEXT | DEV |
-|04| TEXT | DEV |
+|01| Võ Lê Anh Vũ | DEV · Tech Lead|
+|02| Võ Việt Tường | DEV |
+|03| Nguyễn Trần Tuấn Anh | DEV |
+|04| Bùi Nhật Tuấn | DEV |
 
 ## 🚀 Bắt đầu nhanh
 
