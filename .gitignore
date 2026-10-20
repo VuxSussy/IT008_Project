@@ -1,0 +1,12 @@
+# Visual Studio
+.vs/
+
+# Thu muc build .NET
+[Bb]in/
+[Oo]bj/
+
+
+# File he dieu hanh
+.DS_Store
+Thumbs.db
+Desktop.ini
