@@ -1,0 +1,10 @@
+# Normalize text to LF in Git; use CRLF in Windows working copies.
+* text=auto eol=crlf
+
+# Keep image assets binary (no text conversion, diff, or merge).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.bmp binary
