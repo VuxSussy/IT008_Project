@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace FlashcardsApp;
 
-public partial class MainForm : Form
+public partial class MainWindow : Form
 {
     private readonly string dataPath;
     private readonly bool designerPreview;
@@ -22,9 +22,9 @@ public partial class MainForm : Form
     private bool wordFitQueued;
     private List<Flashcard> listedCards = new();
 
-    public MainForm() : this(FlashcardStore.DefaultPath) { }
+    public MainWindow() : this(FlashcardStore.DefaultPath) { }
 
-    internal MainForm(string dataPath)
+    internal MainWindow(string dataPath)
     {
         this.dataPath = dataPath;
         designerPreview = LicenseManager.UsageMode == LicenseUsageMode.Designtime;
@@ -39,7 +39,7 @@ public partial class MainForm : Form
         cardsGrid.AccessibleName = "Danh sách từ vựng và tiến độ ôn tập";
     }
 
-    private void MainForm_Load(object? sender, EventArgs e)
+    private void MainWindow_Load(object? sender, EventArgs e)
     {
         if (designerPreview || DesignMode) return;
         try
@@ -140,7 +140,7 @@ public partial class MainForm : Form
         previous.Dispose();
     }
 
-    private void MainForm_Resize(object? sender, EventArgs e) => QueueWordFit();
+    private void MainWindow_Resize(object? sender, EventArgs e) => QueueWordFit();
 
     private void RenderNotebook()
     {
