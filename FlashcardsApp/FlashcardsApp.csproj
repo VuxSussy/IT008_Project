@@ -8,6 +8,30 @@
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <ForceDesignerDPIUnaware>true</ForceDesignerDPIUnaware>
     <ImplicitUsings>enable</ImplicitUsings>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.14" />
+  </ItemGroup>
+
+  <!-- Mỗi màn hiện 1 mục trong Solution Explorer: file Designer nằm gọn bên dưới, nhấp đúp mở thẳng Designer -->
+  <ItemGroup>
+    <Compile Update="Screens\Overview\OverviewScreen.cs" SubType="UserControl" />
+    <Compile Update="Screens\Overview\OverviewScreen.Designer.cs" DependentUpon="OverviewScreen.cs" />
+    <Compile Update="Screens\Folder\FolderScreen.cs" SubType="UserControl" />
+    <Compile Update="Screens\Folder\FolderScreen.Designer.cs" DependentUpon="FolderScreen.cs" />
+    <Compile Update="Screens\Study\StudyScreen.cs" SubType="UserControl" />
+    <Compile Update="Screens\Study\StudyScreen.Designer.cs" DependentUpon="StudyScreen.cs" />
+    <Compile Update="Screens\TypeAnswer\TypeAnswerScreen.cs" SubType="UserControl" />
+    <Compile Update="Screens\TypeAnswer\TypeAnswerScreen.Designer.cs" DependentUpon="TypeAnswerScreen.cs" />
+    <Compile Update="Screens\Mistake\MistakeScreen.cs" SubType="UserControl" />
+    <Compile Update="Screens\Mistake\MistakeScreen.Designer.cs" DependentUpon="MistakeScreen.cs" />
+    <Compile Update="Screens\Match\MatchScreen.cs" SubType="UserControl" />
+    <Compile Update="Screens\Match\MatchScreen.Designer.cs" DependentUpon="MatchScreen.cs" />
+    <Compile Update="MainWindow.cs" SubType="Form" />
+    <Compile Update="MainWindow.Designer.cs" DependentUpon="MainWindow.cs" />
+    <Compile Update="MainWindow.Appearance.cs" DependentUpon="MainWindow.cs" />
+    <Compile Update="Dialogs\AddCardDialog.cs" SubType="Form" />
+  </ItemGroup>
 </Project>

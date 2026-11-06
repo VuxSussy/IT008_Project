@@ -1,6 +1,6 @@
 namespace FlashcardsApp;
 
-partial class MainForm
+partial class MainWindow
 {
     private System.ComponentModel.IContainer components = null;
     protected override void Dispose(bool disposing)
@@ -1409,7 +1409,7 @@ partial class MainForm
         scheduleNote.TabIndex = 76;
         scheduleNote.Text = "Lần ôn tiếp theo được lưu theo mức đánh giá của bạn.";
         // 
-        // MainForm
+        // MainWindow
         // 
         AutoScaleDimensions = new SizeF(96F, 96F);
         AutoScaleMode = AutoScaleMode.Dpi;
@@ -1420,11 +1420,11 @@ partial class MainForm
         ForeColor = Color.FromArgb(15, 23, 42);
         KeyPreview = true;
         MinimumSize = new Size(1100, 660);
-        Name = "MainForm";
+        Name = "MainWindow";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "English Flashcards";
-        Load += MainForm_Load;
-        Resize += MainForm_Resize;
+        Load += MainWindow_Load;
+        Resize += MainWindow_Resize;
         root.ResumeLayout(false);
         sidebar.ResumeLayout(false);
         brand.ResumeLayout(false);

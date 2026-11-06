@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace FlashcardsApp;
 
-public partial class MainForm
+public partial class MainWindow
 {
     private int progressValue;
     private string exampleHighlight = "";
