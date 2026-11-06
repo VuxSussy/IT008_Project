@@ -1,56 +1,62 @@
-# IT008_Project - Flashcard App
+# Flashcards – Đồ án IT008
 
-Đồ án môn **IT008 – Lập trình trực quan** · Ứng dụng desktop **WinForms (.NET 10)** · Nhóm 4 người.
+App học từ vựng tiếng Anh bằng flash cards sử dụng C# WinForms (.NET 10).
+Làm từ **5/11** tới **27/11/2026**.
 
-> **Đề tài:** _flashcard học ngoại ngữ_
+| Người | Vai trò |
+|---|---|
+| Võ Lê Anh Vũ | Trưởng nhóm - Tech Lead |
+| Võ Việt Tường | Thành viên |
+| Nguyễn Trần Tuấn Anh | Thành viên |
+| Bùi Nhật Tuấn | Thành viên |
 
-## 👨‍💻 Thành viên nhóm
-| # |  Tên  | Vai Trò |
-|---|---|---|
-|01| Võ Lê Anh Vũ | DEV · Tech Lead|
-|02| Võ Việt Tường | DEV |
-|03| Nguyễn Trần Tuấn Anh | DEV |
-|04| Bùi Nhật Tuấn | DEV |
+## Chạy app
 
-## 🚀 Bắt đầu nhanh
+1. Cài phần mềm theo [Bắt đầu](docs/01-bat-dau.md).
+2. `git clone https://github.com/VuxSussy/IT008_Project.git`
+3. Mở `FlashcardsApp.slnx` bằng Visual Studio, bấm **F5**.
 
-1. Cài môi trường → Coming soon!
-2. Clone & chạy:
-   ```powershell
-   cd C:\Dev
-   gh repo clone VuxSussy/IT008_Project
-   #hoặc là
-   git clone https://github.com/VuxSussy/IT008_Project.git
+## Tài liệu
 
-   ⚠️ Disclaimer: Dự án đang trong giai đoạn phát triển
-   ```
+| File | Đọc khi |
+|---|---|
+| [01 – Bắt đầu](docs/01-bat-dau.md) | Ngày đầu: cài máy, cách dùng Git |
+| [02 – Quy ước code](docs/02-quy-uoc-code.md) | Trước khi viết code |
+| [03 – Database](docs/03-database.md) | Khi làm phần lưu dữ liệu |
+| [04 – Giao diện](docs/04-gui.md) | Khi làm màn hình của mình |
 
-## 📚 Tài liệu nhóm
-
-| # | Tài liệu | Nội dung |
-|---|---|---|
-| 01 | [Git workflow](docs/01-git-workflow.md) | Nhánh, commit, PR, review, conflict, cứu hộ |
-| 02| [Project Timeline](docs/02-project-timeline.md) | timeline, yêu cầu MVP |
-| 03 | [Quy ước](docs/03-quy-uoc.md) | Kiến trúc, cách đặt tên,... |
-| 04 | [Môi trường Mac + Parallels]() | Cài đặt, xử lý sự cố (COMING SOON) |
-| 99 | [Các từ viết tắt](docs/99-abbreviation) | Các từ viết tắt cần biết |
-
-
-Việc cần làm: tab [Issues](https://github.com/VuxSussy/IT008_Project/issues) · Tiến độ: tab [Milestones](https://github.com/VuxSussy/IT008_Project/milestones)
-
-## 🗂️ Cấu trúc thư mục
+## Thư mục
 
 ```
 IT008_Project/
-├── .github/                   # CI build, mẫu PR/issue, CODEOWNERS
-├── database/                  # database lưu lượng từ đã học,...
-├── src/
-│   ├── gui/                   # WinForms: Forms/, UserControls/, Resources/
-│   ├── ⚠️ Coming Soon
-├── docs/                      # Tài liệu nhóm
-├── scripts/                   # setup-windows.ps1, setup-mac.sh (⚠️ Coming Soon)
-├── .editorconfig              # Định dạng code thống nhất
-├── .gitattributes             # Chuẩn hóa CRLF/LF giữa Mac và Windows
-└── README.md                  #Giới thiệu sơ lược
+├── FlashcardsApp.slnx              mở file này bằng Visual Studio
+├── FlashcardsApp/                  code của app
+│   ├── Program.cs                  điểm bắt đầu, mở MainWindow
+│   ├── MainWindow.cs               cửa sổ chính: menu trái, chỗ hiện màn hình
+│   ├── MainWindow.Designer.cs
+│   ├── MainWindow.Appearance.cs    màu, font dùng chung
+│   ├── Screens/                    mỗi màn một thư mục
+│   │   ├── Overview/               Tổng quan
+│   │   ├── Folder/                 Thư mục và từ vựng
+│   │   ├── Study/                  Học lật thẻ
+│   │   ├── TypeAnswer/             Gõ đáp án
+│   │   ├── Mistake/                Sổ lỗi
+│   │   └── Match/                  Ghép cặp (tùy chọn)
+│   ├── Dialogs/                    hộp thoại
+│   │   ├── AddCardDialog.cs        thêm, sửa từ
+│   │   └── ImportWordsDialog.cs    nhập nhiều từ (thẻ 15)
+│   ├── Controls/                   control vẽ riêng, dùng chung
+│   │   └── StudyControls.cs
+│   └── Data/                       đọc, ghi file SQLite
+│       ├── Database.cs             tạo bảng và 30 từ mẫu (thẻ 03)
+│       ├── Flashcard.cs
+│       └── FlashcardStore.cs
+├── docs/                           tài liệu, đọc theo số thứ tự
+│   └── assets/                     ảnh minh họa màn hình
+├── scripts/                        kiểm tra máy trước khi làm
+│   ├── setup-windows.ps1
+│   └── setup-mac.sh
+└── .github/                        mẫu pull request, người duyệt code
 ```
 
+File `flashcards.db` (dữ liệu của app) tự tạo cạnh file chạy khi bấm F5, không nằm trong repo.
