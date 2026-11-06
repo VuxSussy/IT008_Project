@@ -1,3 +1,6 @@
+# Quy ước định dạng chung cho Visual Studio (Windows) và VS Code (macOS).
+# Mọi người dùng chung file này thì code lưu ra giống nhau, không sinh khác biệt giả khi gộp code.
+# VS Code cần cài tiện ích "EditorConfig for VS Code" để đọc file này; Visual Studio đọc sẵn.
 root = true
 
 [*]
@@ -8,9 +11,36 @@ indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 
+# File project và dữ liệu: thụt lề 2 dấu cách như Visual Studio tự tạo.
 [*.{csproj,props,targets,resx,config,slnx,xml,json}]
 indent_size = 2
 
-# Preserve intentional Markdown line breaks.
+# Giữ dấu xuống dòng cố ý ở cuối dòng Markdown.
 [*.md]
 trim_trailing_whitespace = false
+
+# Script chạy trên Mac/Linux phải dùng LF, script Windows dùng CRLF.
+[*.{sh,py}]
+end_of_line = lf
+
+[*.{ps1,cmd,bat}]
+end_of_line = crlf
+
+# File do Designer tự sinh: không tự sửa khoảng trắng, tránh làm đổi cả file khi mở trên máy khác.
+[*.Designer.cs]
+trim_trailing_whitespace = false
+
+# Kiểu viết C#: theo mặc định của Visual Studio, để Ctrl+K, Ctrl+D trên mọi máy cho cùng kết quả.
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_after_cast = false
+csharp_prefer_braces = when_multiline:suggestion
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
