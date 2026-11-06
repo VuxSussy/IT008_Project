@@ -1,24 +1,15 @@
-## Mô tả
+## Làm gì
 
-<!-- PR này làm gì? Tại sao? Viết ngắn gọn 1–3 câu. -->
+<!-- 1–2 câu. Ví dụ: Thêm nút tạo thư mục. -->
 
-Closes #<!-- số issue, vd: Closes #12 -->
+Closes #<!-- số GitHub của thẻ việc, ví dụ thẻ "05 · Màn Thư mục" là #6 -->
 
-## Loại thay đổi
+## Ảnh chụp màn hình
 
-- [ ] feat – chức năng mới
-- [ ] fix – sửa lỗi
-- [ ] docs – tài liệu
-- [ ] refactor / chore – dọn code, cấu hình
+<!-- Kéo thả ảnh vào đây nếu có sửa giao diện. -->
 
-## Ảnh chụp màn hình (bắt buộc nếu có sửa form)
+## Đã kiểm tra
 
-<!-- Kéo thả ảnh vào đây -->
-
-## Checklist trước khi xin review
-
-- [ ] Đã `git pull --rebase origin main` và build không lỗi trên máy mình
-- [ ] Đã chạy thử chức năng, không crash
-- [ ] Không commit `bin/`, `obj/`, `.vs/`, file `.db`
-- [ ] Không sửa form/file của người khác (nếu có: đã báo trên nhóm)
-- [ ] Tên nhánh và commit message đúng quy ước (docs/01-git-workflow.md)
+- [ ] F5 chạy được, đã thử nhập đúng, nhập sai, để trống
+- [ ] Màn hình đã sửa vẫn mở được trong Designer
+- [ ] Không có `bin/`, `obj/`, `.vs/`, `.csproj.user`
