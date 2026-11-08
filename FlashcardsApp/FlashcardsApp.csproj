@@ -31,7 +31,6 @@
     <Compile Update="Screens\Match\MatchScreen.Designer.cs" DependentUpon="MatchScreen.cs" />
     <Compile Update="MainWindow.cs" SubType="Form" />
     <Compile Update="MainWindow.Designer.cs" DependentUpon="MainWindow.cs" />
-    <Compile Update="MainWindow.Appearance.cs" DependentUpon="MainWindow.cs" />
     <Compile Update="Dialogs\AddCardDialog.cs" SubType="Form" />
   </ItemGroup>
 </Project>
