@@ -7,10 +7,14 @@ internal static class StudyTheme
 {
     public static readonly Color Ink = Color.FromArgb(15, 23, 42);
     public static readonly Color Muted = Color.FromArgb(93, 105, 125);
-    public static readonly Color Teal = Color.FromArgb(0, 116, 122);
+    public static readonly Color Teal = Color.FromArgb(15, 118, 110);
     public static readonly Color SoftTeal = Color.FromArgb(227, 245, 241);
     public static readonly Color Line = Color.FromArgb(224, 229, 235);
-    public static readonly Color Canvas = Color.FromArgb(250, 251, 252);
+    public static readonly Color Canvas = Color.FromArgb(247, 249, 250);
+    public static readonly Color Warning = Color.FromArgb(194, 65, 12);
+    public static readonly Color DarkTeal = Color.FromArgb(17, 78, 74);
+    public static readonly Color Slate = Color.FromArgb(51, 65, 85);
+    public static readonly Color NewBadge = Color.FromArgb(67, 56, 202);
 
     public static GraphicsPath Round(RectangleF bounds, float radius)
     {
@@ -65,7 +69,16 @@ internal static class StudyTheme
             case "info": g.DrawEllipse(pen, 3, 3, 18, 18); g.DrawLine(pen, 12, 11, 12, 17); g.FillEllipse(brush, 11, 6, 2, 2); break;
             case "left": g.DrawLines(pen, new PointF[] { new(15, 5), new(8, 12), new(15, 19) }); break;
             case "right": g.DrawLines(pen, new PointF[] { new(9, 5), new(16, 12), new(9, 19) }); break;
-            case "dot": g.FillEllipse(brush, 5, 5, 14, 14); break;
+            case "dot": g.FillEllipse(brush, 8, 8, 8, 8); break;
+            case "folder":
+                g.DrawLines(pen, new PointF[] { new(3, 19), new(3, 5), new(9, 5), new(11, 8), new(21, 8), new(21, 19), new(3, 19) }); break;
+            case "keyboard":
+                g.DrawRectangle(pen, 2, 6, 20, 13);
+                for (var x = 6; x <= 18; x += 4) { g.DrawLine(pen, x, 10, x + .5f, 10); g.DrawLine(pen, x, 13, x + .5f, 13); }
+                g.DrawLine(pen, 8, 16, 16, 16); break;
+            case "match":
+                g.DrawRectangle(pen, 3, 3, 7, 7); g.DrawRectangle(pen, 14, 3, 7, 7);
+                g.DrawRectangle(pen, 3, 14, 7, 7); g.DrawRectangle(pen, 14, 14, 7, 7); break;
         }
         g.Restore(state);
     }
@@ -83,6 +96,16 @@ public class StudyButton : Button
     public bool Selected { get; set; }
     [DefaultValue(true)]
     public bool BorderVisible { get; set; } = true;
+    // Nhãn nhỏ bên phải nút, ví dụ số từ trong sổ lỗi hoặc chữ "MỚI". Để trống thì không vẽ.
+    [DefaultValue("")]
+    public string Badge { get; set; } = "";
+    [DefaultValue(typeof(Color), "194, 65, 12")]
+    public Color BadgeColor { get; set; } = StudyTheme.Warning;
+    [DefaultValue(24)]
+    public int IconSize { get; set; } = 24;
+    // Bo góc; đặt bằng nửa chiều cao để thành nút tròn
+    [DefaultValue(8)]
+    public int CornerRadius { get; set; } = 8;
     private bool hovered;
     private bool pressed;
 
@@ -105,13 +128,16 @@ public class StudyButton : Button
     protected override void OnLostFocus(EventArgs e) { Invalidate(); base.OnLostFocus(e); }
     protected override void OnPaint(PaintEventArgs e)
     {
-        NativeStudyPainting.Button(this, e, IconName, Detail, KeyBadge, Selected, BorderVisible, hovered, pressed);
+        NativeStudyPainting.Button(this, e, IconName, Detail, KeyBadge, Selected, BorderVisible, hovered, pressed,
+            IconSize, CornerRadius, Focused && ShowFocusCues);
+        if (Badge.Length > 0) NativeStudyPainting.Badge(this, e, Badge, BadgeColor);
     }
 }
 
 internal static class NativeStudyPainting
 {
-    public static void Button(Button owner, PaintEventArgs e, string iconName, string detail, string keyBadge, bool selected, bool borderVisible, bool hovered, bool pressed)
+    public static void Button(Button owner, PaintEventArgs e, string iconName, string detail, string keyBadge, bool selected, bool borderVisible, bool hovered, bool pressed,
+        int iconSize = 24, int cornerRadius = 7, bool focusCue = false)
     {
         var g = e.Graphics;
         var scale = owner.DeviceDpi / 96f;
@@ -120,24 +146,21 @@ internal static class NativeStudyPainting
         g.Clear(owner.Parent?.BackColor ?? owner.BackColor);
         var background = selected ? StudyTheme.SoftTeal : owner.BackColor;
         if (hovered && owner.Enabled) background = ControlPaint.Dark(background, pressed ? .08f : .025f);
-        var foreground = owner.Enabled ? (selected ? StudyTheme.Teal : owner.ForeColor) : StudyTheme.Muted;
-        using var path = StudyTheme.Round(new RectangleF(1, 1, owner.Width - 2, owner.Height - 2), D(7));
+        var foreground = owner.Enabled ? (selected ? StudyTheme.DarkTeal : owner.ForeColor) : StudyTheme.Muted;
+        using var path = StudyTheme.Round(new RectangleF(1, 1, owner.Width - 2, owner.Height - 2), D(cornerRadius));
         using var brush = new SolidBrush(background);
         using var pen = new Pen(selected ? StudyTheme.Teal : StudyTheme.Line, selected ? D(2) : 1);
         g.FillPath(brush, path);
         if (borderVisible) g.DrawPath(pen, path);
-        if (selected && !borderVisible)
-        {
-            using var accent = new SolidBrush(StudyTheme.Teal);
-            g.FillRectangle(accent, 0, D(8), D(4), owner.Height - D(16));
-        }
         var rect = new Rectangle(D(12), 0, owner.Width - D(24), owner.Height);
         if (iconName.Length > 0)
         {
-            var iconBounds = new Rectangle(D(16), (owner.Height - D(24)) / 2, D(24), D(24));
-            if (owner.Text.Length == 0) iconBounds.X = (owner.Width - D(24)) / 2;
+            // Biểu tượng 24 (mặc định) cách lề 16, chữ cách biểu tượng 14; biểu tượng nhỏ ở menu thì sát hơn
+            var left = iconSize >= 24 ? 16 : 14;
+            var iconBounds = new Rectangle(D(left), (owner.Height - D(iconSize)) / 2, D(iconSize), D(iconSize));
+            if (owner.Text.Length == 0) iconBounds.X = (owner.Width - D(iconSize)) / 2;
             StudyTheme.Icon(g, iconName, iconBounds, foreground);
-            rect.X = D(54); rect.Width = owner.Width - rect.X - D(10);
+            rect.X = D(left + iconSize + (iconSize >= 24 ? 14 : 12)); rect.Width = owner.Width - rect.X - D(10);
         }
         var flags = TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis;
         flags |= owner.TextAlign == ContentAlignment.MiddleLeft ? TextFormatFlags.Left : TextFormatFlags.HorizontalCenter;
@@ -151,20 +174,42 @@ internal static class NativeStudyPainting
             TextRenderer.DrawText(g, detail, small, new Rectangle(0, owner.Height / 2, owner.Width, owner.Height / 2 - D(4)), foreground,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
+        else if (selected)
+        {
+            using var bold = new Font(owner.Font, FontStyle.Bold);
+            TextRenderer.DrawText(g, owner.Text, bold, rect, foreground, flags);
+        }
         else TextRenderer.DrawText(g, owner.Text, owner.Font, rect, foreground, flags);
-        if (owner.Focused && true)
+        if (focusCue)
             ControlPaint.DrawFocusRectangle(g, new Rectangle(D(5), D(5), owner.Width - D(10), owner.Height - D(10)), foreground, background);
         }
 
-    public static void Surface(Panel owner, PaintEventArgs e)
+    public static void Badge(Control owner, PaintEventArgs e, string text, Color color)
+    {
+        var scale = owner.DeviceDpi / 96f;
+        using var font = new Font("Segoe UI", 8F, FontStyle.Bold);
+        var size = TextRenderer.MeasureText(e.Graphics, text, font, Size.Empty, TextFormatFlags.NoPadding);
+        var width = Math.Max(size.Width + 14 * scale, 23 * scale);
+        var height = 17 * scale;
+        var bounds = new RectangleF(owner.Width - width - 12 * scale, (owner.Height - height) / 2, width, height);
+        e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        using var path = StudyTheme.Round(bounds, height / 2);
+        using var fill = new SolidBrush(Color.FromArgb(36, color));
+        e.Graphics.FillPath(fill, path);
+        TextRenderer.DrawText(e.Graphics, text, font, Rectangle.Round(bounds), color,
+            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.NoPadding);
+    }
+
+    // Nền bo góc 12 cho thẻ, khung. border = false thì không vẽ viền (khung nền màu)
+    public static void Surface(Panel owner, PaintEventArgs e, bool border = true)
     {
         e.Graphics.Clear(owner.Parent?.BackColor ?? StudyTheme.Canvas);
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        using var path = StudyTheme.Round(new RectangleF(.5f, .5f, owner.Width - 1, owner.Height - 1), 9 * owner.DeviceDpi / 96f);
+        using var path = StudyTheme.Round(new RectangleF(.5f, .5f, owner.Width - 1, owner.Height - 1), 12 * owner.DeviceDpi / 96f);
         using var brush = new SolidBrush(owner.BackColor);
         using var pen = new Pen(StudyTheme.Line);
         e.Graphics.FillPath(brush, path);
-        e.Graphics.DrawPath(pen, path);
+        if (border) e.Graphics.DrawPath(pen, path);
         }
 
     public static void Feedback(Label owner, PaintEventArgs e, string iconName)
