@@ -20,8 +20,8 @@ partial class MainWindow
         menuPanel = new Panel();
         menuLayout = new TableLayoutPanel();
         brandPanel = new Panel();
-        logoPanel = new Panel();
-        brandLabel = new Label();
+        logoPanel = new LogoBox();
+        brandLabel = new SpacedLabel();
         taglineLabel = new Label();
         overviewButton = new StudyButton();
         folderButton = new StudyButton();
@@ -29,7 +29,7 @@ partial class MainWindow
         typeButton = new StudyButton();
         mistakeButton = new StudyButton();
         matchButton = new StudyButton();
-        savedLabel = new Label();
+        savedLabel = new StatusLabel();
         menuBorder = new Panel();
         contentPanel = new Panel();
         menuPanel.SuspendLayout();
@@ -94,7 +94,6 @@ partial class MainWindow
         logoPanel.Name = "logoPanel";
         logoPanel.Size = new Size(34, 34);
         logoPanel.TabIndex = 0;
-        logoPanel.Paint += logoPanel_Paint;
         //
         // brandLabel
         //
@@ -106,7 +105,6 @@ partial class MainWindow
         brandLabel.TabIndex = 1;
         brandLabel.Text = "FLASHCARDS";
         brandLabel.TextAlign = ContentAlignment.MiddleLeft;
-        brandLabel.Paint += brandLabel_Paint;
         //
         // taglineLabel
         //
@@ -114,7 +112,7 @@ partial class MainWindow
         taglineLabel.ForeColor = Color.FromArgb(51, 65, 85);
         taglineLabel.Location = new Point(52, 20);
         taglineLabel.Name = "taglineLabel";
-        taglineLabel.Size = new Size(150, 34);
+        taglineLabel.Size = new Size(156, 36);
         taglineLabel.TabIndex = 2;
         taglineLabel.Text = "Học từng chút, nhớ thật lâu.";
         //
@@ -228,7 +226,6 @@ partial class MainWindow
         savedLabel.TabIndex = 8;
         savedLabel.Text = "Đã lưu vào máy";
         savedLabel.TextAlign = ContentAlignment.MiddleLeft;
-        savedLabel.Paint += savedLabel_Paint;
         //
         // menuBorder
         //
@@ -275,8 +272,8 @@ partial class MainWindow
     private Panel menuPanel;
     private TableLayoutPanel menuLayout;
     private Panel brandPanel;
-    private Panel logoPanel;
-    private Label brandLabel;
+    private LogoBox logoPanel;
+    private SpacedLabel brandLabel;
     private Label taglineLabel;
     private StudyButton overviewButton;
     private StudyButton folderButton;
@@ -284,7 +281,7 @@ partial class MainWindow
     private StudyButton typeButton;
     private StudyButton mistakeButton;
     private StudyButton matchButton;
-    private Label savedLabel;
+    private StatusLabel savedLabel;
     private Panel menuBorder;
     private Panel contentPanel;
 }
