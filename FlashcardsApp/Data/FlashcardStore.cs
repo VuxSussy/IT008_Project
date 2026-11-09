@@ -13,7 +13,7 @@ public static class FlashcardStore
 {
     public static string DefaultPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "FlashcardsApp", "flashcards.db");
+        "FlashcardsApp", "database.db");
 
     private static SqliteConnection Open(string path)
     {
@@ -25,7 +25,7 @@ public static class FlashcardStore
     {
         if (!File.Exists(path))
         {
-            string template = Path.Combine(AppContext.BaseDirectory, "flashcard.db");
+            string template = Path.Combine(AppContext.BaseDirectory, "database.db");
             if (File.Exists(template))
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
@@ -56,7 +56,7 @@ public static class FlashcardStore
             using var cmd = conn.CreateCommand();
             cmd.CommandText = @"SELECT Word, Meaning, Example, IsLearned, 
                                         Category, Pronunciation, ExampleTranslation, 
-                                        MemoryNote, CommonMistake, LasRating, NextReviewAt
+                                        MemoryNote, CommonMistake, LastRating, NextReviewAt
                                 FROM Flashcards
                                 ORDER BY Id ASC";
             using var r = cmd.ExecuteReader();
@@ -84,10 +84,7 @@ public static class FlashcardStore
         {
             throw new IOException(ex.Message, ex);
         }
-        //var cards = JsonSerializer.Deserialize<List<Flashcard>>(File.ReadAllText(path))
-        //    ?? throw new InvalidDataException("File từ vựng không có danh sách thẻ hợp lệ.");
-        //Validate(cards);
-        //return cards;
+
     }
 
     public static void Save(string path, List<Flashcard> cards)
