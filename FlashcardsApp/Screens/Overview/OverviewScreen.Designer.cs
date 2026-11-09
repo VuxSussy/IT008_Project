@@ -23,36 +23,27 @@ partial class OverviewScreen
         greetingLabel = new Label();
         studyNowButton = new StudyButton();
         statsLayout = new TableLayoutPanel();
-        totalPanel = new Panel();
+        totalPanel = new CardPanel();
         totalNoteLabel = new Label();
         totalLabel = new Label();
         totalTitleLabel = new Label();
-        learnedPanel = new Panel();
+        learnedPanel = new CardPanel();
         learnedNoteLabel = new Label();
         learnedLabel = new Label();
         learnedTitleLabel = new Label();
-        mistakePanel = new Panel();
+        mistakePanel = new CardPanel();
         mistakeNoteLabel = new Label();
         mistakeValuePanel = new FlowLayoutPanel();
         mistakeLabel = new Label();
         mistakeUnitLabel = new Label();
         mistakeTitleLabel = new Label();
-        folderPanel = new Panel();
+        folderPanel = new CardPanel();
         folderNoteLabel = new Label();
         folderLabel = new Label();
         folderTitleLabel = new Label();
         mainLayout = new TableLayoutPanel();
-        progressPanel = new Panel();
-        progressTitleLabel = new Label();
-        wordOfDayPanel = new Panel();
-        wordOfDayLayout = new TableLayoutPanel();
-        wordOfDayTitleLabel = new Label();
-        speakWordButton = new StudyButton();
-        wordOfDayLabel = new Label();
-        wordOfDayInfoLabel = new Label();
-        wordOfDayExampleLabel = new Label();
-        wordOfDayTranslationLabel = new Label();
-        wordOfDayNoteLabel = new Label();
+        progressPanel = new CardPanel();
+        progressTitleLabel = new SpacedLabel();
         overviewLayout.SuspendLayout();
         headerLayout.SuspendLayout();
         statsLayout.SuspendLayout();
@@ -63,8 +54,6 @@ partial class OverviewScreen
         folderPanel.SuspendLayout();
         mainLayout.SuspendLayout();
         progressPanel.SuspendLayout();
-        wordOfDayPanel.SuspendLayout();
-        wordOfDayLayout.SuspendLayout();
         SuspendLayout();
         //
         // overviewLayout
@@ -173,7 +162,6 @@ partial class OverviewScreen
         totalPanel.Padding = new Padding(21, 14, 16, 10);
         totalPanel.Size = new Size(228, 126);
         totalPanel.TabIndex = 0;
-        totalPanel.Paint += cardPanel_Paint;
         //
         // totalNoteLabel
         //
@@ -223,7 +211,6 @@ partial class OverviewScreen
         learnedPanel.Padding = new Padding(21, 14, 16, 10);
         learnedPanel.Size = new Size(228, 126);
         learnedPanel.TabIndex = 1;
-        learnedPanel.Paint += cardPanel_Paint;
         //
         // learnedNoteLabel
         //
@@ -273,7 +260,6 @@ partial class OverviewScreen
         mistakePanel.Padding = new Padding(21, 14, 16, 10);
         mistakePanel.Size = new Size(228, 126);
         mistakePanel.TabIndex = 2;
-        mistakePanel.Paint += cardPanel_Paint;
         //
         // mistakeNoteLabel
         //
@@ -344,7 +330,6 @@ partial class OverviewScreen
         folderPanel.Padding = new Padding(21, 14, 16, 10);
         folderPanel.Size = new Size(228, 126);
         folderPanel.TabIndex = 3;
-        folderPanel.Paint += cardPanel_Paint;
         //
         // folderNoteLabel
         //
@@ -388,7 +373,6 @@ partial class OverviewScreen
         mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 54.3F));
         mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45.7F));
         mainLayout.Controls.Add(progressPanel, 0, 0);
-        mainLayout.Controls.Add(wordOfDayPanel, 1, 0);
         mainLayout.Dock = DockStyle.Fill;
         mainLayout.Margin = new Padding(0);
         mainLayout.Name = "mainLayout";
@@ -408,7 +392,6 @@ partial class OverviewScreen
         progressPanel.Size = new Size(505, 502);
         progressPanel.TabIndex = 0;
         progressPanel.Paint += progressPanel_Paint;
-        progressPanel.Resize += progressPanel_Resize;
         //
         // progressTitleLabel
         //
@@ -417,149 +400,11 @@ partial class OverviewScreen
         progressTitleLabel.ForeColor = Color.FromArgb(15, 118, 110);
         progressTitleLabel.Margin = new Padding(0);
         progressTitleLabel.Name = "progressTitleLabel";
-        progressTitleLabel.Paint += spacedLabel_Paint;
+        progressTitleLabel.LetterSpacing = 1.2F;
         progressTitleLabel.Size = new Size(455, 24);
         progressTitleLabel.TabIndex = 0;
         progressTitleLabel.Text = "TIẾN ĐỘ GHI NHỚ";
         progressTitleLabel.TextAlign = ContentAlignment.MiddleLeft;
-        //
-        // wordOfDayPanel
-        //
-        wordOfDayPanel.BackColor = Color.FromArgb(227, 245, 241);
-        wordOfDayPanel.Controls.Add(wordOfDayLayout);
-        wordOfDayPanel.Dock = DockStyle.Fill;
-        wordOfDayPanel.Margin = new Padding(0);
-        wordOfDayPanel.Name = "wordOfDayPanel";
-        wordOfDayPanel.Padding = new Padding(24);
-        wordOfDayPanel.Size = new Size(439, 502);
-        wordOfDayPanel.TabIndex = 1;
-        wordOfDayPanel.Paint += wordOfDayPanel_Paint;
-        //
-        // wordOfDayLayout
-        //
-        wordOfDayLayout.ColumnCount = 2;
-        wordOfDayLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        wordOfDayLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 44F));
-        wordOfDayLayout.Controls.Add(wordOfDayTitleLabel, 0, 0);
-        wordOfDayLayout.Controls.Add(speakWordButton, 1, 0);
-        wordOfDayLayout.Controls.Add(wordOfDayLabel, 0, 1);
-        wordOfDayLayout.Controls.Add(wordOfDayInfoLabel, 0, 2);
-        wordOfDayLayout.Controls.Add(wordOfDayExampleLabel, 0, 3);
-        wordOfDayLayout.Controls.Add(wordOfDayTranslationLabel, 0, 4);
-        wordOfDayLayout.Controls.Add(wordOfDayNoteLabel, 0, 6);
-        wordOfDayLayout.Dock = DockStyle.Fill;
-        wordOfDayLayout.Margin = new Padding(0);
-        wordOfDayLayout.Name = "wordOfDayLayout";
-        wordOfDayLayout.RowCount = 7;
-        wordOfDayLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44F));
-        wordOfDayLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 58F));
-        wordOfDayLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44F));
-        wordOfDayLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26F));
-        wordOfDayLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-        wordOfDayLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        wordOfDayLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));
-        wordOfDayLayout.Size = new Size(391, 454);
-        wordOfDayLayout.TabIndex = 0;
-        //
-        // wordOfDayTitleLabel
-        //
-        wordOfDayTitleLabel.Dock = DockStyle.Fill;
-        wordOfDayTitleLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-        wordOfDayTitleLabel.ForeColor = Color.FromArgb(15, 118, 110);
-        wordOfDayTitleLabel.Margin = new Padding(0);
-        wordOfDayTitleLabel.Name = "wordOfDayTitleLabel";
-        wordOfDayTitleLabel.Paint += spacedLabel_Paint;
-        wordOfDayTitleLabel.Size = new Size(347, 44);
-        wordOfDayTitleLabel.TabIndex = 0;
-        wordOfDayTitleLabel.Text = "TỪ CỦA NGÀY";
-        wordOfDayTitleLabel.TextAlign = ContentAlignment.MiddleLeft;
-        //
-        // speakWordButton
-        //
-        speakWordButton.AccessibleName = "Phát âm từ của ngày";
-        speakWordButton.BorderVisible = false;
-        speakWordButton.CornerRadius = 22;
-        speakWordButton.Dock = DockStyle.Fill;
-        speakWordButton.IconName = "sound";
-        speakWordButton.IconSize = 18;
-        speakWordButton.Margin = new Padding(0);
-        speakWordButton.Name = "speakWordButton";
-        speakWordButton.Size = new Size(44, 44);
-        speakWordButton.TabIndex = 1;
-        speakWordButton.Click += speakWordButton_Click;
-        //
-        // wordOfDayLabel
-        //
-        wordOfDayLabel.Dock = DockStyle.Fill;
-        wordOfDayLabel.Font = new Font("Segoe UI", 26F, FontStyle.Bold);
-        wordOfDayLabel.ForeColor = Color.FromArgb(15, 23, 42);
-        wordOfDayLabel.Margin = new Padding(0);
-        wordOfDayLabel.Name = "wordOfDayLabel";
-        wordOfDayLayout.SetColumnSpan(wordOfDayLabel, 2);
-        wordOfDayLabel.AutoEllipsis = true;
-        wordOfDayLabel.Size = new Size(391, 58);
-        wordOfDayLabel.TabIndex = 2;
-        wordOfDayLabel.Text = "appointment";
-        wordOfDayLabel.TextAlign = ContentAlignment.BottomLeft;
-        //
-        // wordOfDayInfoLabel
-        //
-        wordOfDayInfoLabel.Dock = DockStyle.Fill;
-        wordOfDayInfoLabel.Font = new Font("Segoe UI", 11F);
-        wordOfDayInfoLabel.ForeColor = Color.FromArgb(51, 65, 85);
-        wordOfDayInfoLabel.Margin = new Padding(0);
-        wordOfDayInfoLabel.Name = "wordOfDayInfoLabel";
-        wordOfDayLayout.SetColumnSpan(wordOfDayInfoLabel, 2);
-        wordOfDayInfoLabel.AutoEllipsis = true;
-        wordOfDayInfoLabel.Size = new Size(391, 44);
-        wordOfDayInfoLabel.TabIndex = 3;
-        wordOfDayInfoLabel.Text = "/əˈpɔɪntmənt/ · cuộc hẹn";
-        wordOfDayInfoLabel.TextAlign = ContentAlignment.MiddleLeft;
-        //
-        // wordOfDayExampleLabel
-        //
-        wordOfDayExampleLabel.Dock = DockStyle.Fill;
-        wordOfDayExampleLabel.Font = new Font("Segoe UI", 11F);
-        wordOfDayExampleLabel.ForeColor = Color.FromArgb(15, 23, 42);
-        wordOfDayExampleLabel.Margin = new Padding(0);
-        wordOfDayExampleLabel.Name = "wordOfDayExampleLabel";
-        wordOfDayLayout.SetColumnSpan(wordOfDayExampleLabel, 2);
-        wordOfDayExampleLabel.AutoEllipsis = true;
-        wordOfDayExampleLabel.Paint += wordOfDayExampleLabel_Paint;
-        wordOfDayExampleLabel.Size = new Size(391, 26);
-        wordOfDayExampleLabel.TabIndex = 4;
-        wordOfDayExampleLabel.Text = "I have a doctor's appointment at 9.";
-        wordOfDayExampleLabel.TextAlign = ContentAlignment.MiddleLeft;
-        //
-        // wordOfDayTranslationLabel
-        //
-        wordOfDayTranslationLabel.Dock = DockStyle.Fill;
-        wordOfDayTranslationLabel.Font = new Font("Segoe UI", 10.5F);
-        wordOfDayTranslationLabel.ForeColor = Color.FromArgb(51, 65, 85);
-        wordOfDayTranslationLabel.Margin = new Padding(0);
-        wordOfDayTranslationLabel.Name = "wordOfDayTranslationLabel";
-        wordOfDayLayout.SetColumnSpan(wordOfDayTranslationLabel, 2);
-        wordOfDayTranslationLabel.AutoEllipsis = true;
-        wordOfDayTranslationLabel.Size = new Size(391, 30);
-        wordOfDayTranslationLabel.TabIndex = 5;
-        wordOfDayTranslationLabel.Text = "Tôi có hẹn với bác sĩ lúc 9 giờ.";
-        wordOfDayTranslationLabel.TextAlign = ContentAlignment.MiddleLeft;
-        //
-        // wordOfDayNoteLabel
-        //
-        wordOfDayNoteLabel.Dock = DockStyle.Fill;
-        wordOfDayNoteLabel.Font = new Font("Segoe UI", 9.5F);
-        wordOfDayNoteLabel.ForeColor = Color.FromArgb(17, 78, 74);
-        wordOfDayNoteLabel.Margin = new Padding(0);
-        wordOfDayNoteLabel.Name = "wordOfDayNoteLabel";
-        wordOfDayLayout.SetColumnSpan(wordOfDayNoteLabel, 2);
-        wordOfDayNoteLabel.AutoEllipsis = true;
-        wordOfDayNoteLabel.Padding = new Padding(12, 0, 0, 0);
-        wordOfDayNoteLabel.Paint += wordOfDayNoteLabel_Paint;
-        wordOfDayNoteLabel.Size = new Size(391, 32);
-        wordOfDayNoteLabel.TabIndex = 6;
-        wordOfDayNoteLabel.Text = "Chọn trong các từ chưa thuộc · mỗi ngày một từ";
-        wordOfDayNoteLabel.TextAlign = ContentAlignment.MiddleLeft;
         //
         // OverviewScreen
         //
@@ -582,8 +427,6 @@ partial class OverviewScreen
         folderPanel.ResumeLayout(false);
         mainLayout.ResumeLayout(false);
         progressPanel.ResumeLayout(false);
-        wordOfDayPanel.ResumeLayout(false);
-        wordOfDayLayout.ResumeLayout(false);
         ResumeLayout(false);
     }
 
@@ -595,34 +438,25 @@ partial class OverviewScreen
     private Label greetingLabel;
     private StudyButton studyNowButton;
     private TableLayoutPanel statsLayout;
-    private Panel totalPanel;
+    private CardPanel totalPanel;
     private Label totalNoteLabel;
     private Label totalLabel;
     private Label totalTitleLabel;
-    private Panel learnedPanel;
+    private CardPanel learnedPanel;
     private Label learnedNoteLabel;
     private Label learnedLabel;
     private Label learnedTitleLabel;
-    private Panel mistakePanel;
+    private CardPanel mistakePanel;
     private Label mistakeNoteLabel;
     private FlowLayoutPanel mistakeValuePanel;
     private Label mistakeLabel;
     private Label mistakeUnitLabel;
     private Label mistakeTitleLabel;
-    private Panel folderPanel;
+    private CardPanel folderPanel;
     private Label folderNoteLabel;
     private Label folderLabel;
     private Label folderTitleLabel;
     private TableLayoutPanel mainLayout;
-    private Panel progressPanel;
-    private Label progressTitleLabel;
-    private Panel wordOfDayPanel;
-    private TableLayoutPanel wordOfDayLayout;
-    private Label wordOfDayTitleLabel;
-    private StudyButton speakWordButton;
-    private Label wordOfDayLabel;
-    private Label wordOfDayInfoLabel;
-    private Label wordOfDayExampleLabel;
-    private Label wordOfDayTranslationLabel;
-    private Label wordOfDayNoteLabel;
+    private CardPanel progressPanel;
+    private SpacedLabel progressTitleLabel;
 }
