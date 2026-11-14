@@ -36,7 +36,7 @@ Trên cùng: ngày hôm nay và câu chào "Chào bạn, hôm nay học gì?", b
 | `dateLabel`, `greetingLabel` | Label | Ngày hôm nay (`DateTime.Today`) và câu chào |
 | `studyNowButton` | Button | "Học ngay": mở màn Học (`StudyScreen.StartFolder`) |
 | `totalLabel`, `learnedLabel`, `mistakeLabel`, `folderLabel` | Label | 4 thẻ số: tổng số từ, đã nhớ (`IsLearned`), trong sổ lỗi (`LastRating` 1 hoặc 2), số thư mục |
-| `progressPanel` | Panel | "Tiến độ ghi nhớ": vòng tròn đã nhớ / tổng số từ vẽ bằng GDI+ trong sự kiện `Paint` (`Graphics.FillPie`), bên cạnh ghi số đã nhớ, chưa thuộc |
+| `progressPanel` | CardPanel | "Tiến độ ghi nhớ": `progressRing` (control `ProgressRing` trong `Controls/`, gán `Value`, `Maximum`, `Caption`), bên cạnh `learnedLegendLabel`, `notLearnedLegendLabel` ghi số đã nhớ, chưa thuộc |
 | `wordOfDayPanel` | Panel | **Sáng tạo #14:** Từ của ngày: từ, phiên âm · nghĩa, câu ví dụ, câu dịch, nút phát âm ở góc. Chọn trong các từ chưa thuộc (`LastRating` dưới 3), thuộc hết thì chọn trong tất cả; chưa có từ nào thì ẩn |
 
 Mỗi lần mở màn này thì đếm lại số. Đọc file SQLite rất nhanh nên không cần chạy nền.

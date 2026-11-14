@@ -17,446 +17,344 @@ partial class OverviewScreen
 
     private void InitializeComponent()
     {
-        overviewLayout = new TableLayoutPanel();
-        headerLayout = new TableLayoutPanel();
-        dateLabel = new Label();
+        components = new System.ComponentModel.Container();
+        feedPanel = new FlowLayoutPanel();
+        headerPanel = new Panel();
+        avatarBox = new AvatarBox();
         greetingLabel = new Label();
+        dateLabel = new Label();
+        streakLabel = new ChipLabel();
+        ratingLabel = new ChipLabel();
+        seasonBanner = new CardPanel();
+        seasonLabel = new Label();
         studyNowButton = new StudyButton();
-        statsLayout = new TableLayoutPanel();
-        totalPanel = new CardPanel();
-        totalNoteLabel = new Label();
-        totalLabel = new Label();
-        totalTitleLabel = new Label();
-        learnedPanel = new CardPanel();
-        learnedNoteLabel = new Label();
-        learnedLabel = new Label();
-        learnedTitleLabel = new Label();
-        mistakePanel = new CardPanel();
-        mistakeNoteLabel = new Label();
-        mistakeValuePanel = new FlowLayoutPanel();
-        mistakeLabel = new Label();
-        mistakeUnitLabel = new Label();
-        mistakeTitleLabel = new Label();
-        folderPanel = new CardPanel();
-        folderNoteLabel = new Label();
-        folderLabel = new Label();
-        folderTitleLabel = new Label();
-        mainLayout = new TableLayoutPanel();
-        progressPanel = new CardPanel();
-        progressTitleLabel = new SpacedLabel();
-        overviewLayout.SuspendLayout();
-        headerLayout.SuspendLayout();
-        statsLayout.SuspendLayout();
-        totalPanel.SuspendLayout();
-        learnedPanel.SuspendLayout();
-        mistakePanel.SuspendLayout();
-        mistakeValuePanel.SuspendLayout();
-        folderPanel.SuspendLayout();
-        mainLayout.SuspendLayout();
-        progressPanel.SuspendLayout();
+        challengePanel = new CardPanel();
+        challengeTitleLabel = new SpacedLabel();
+        challengeInfoLabel = new Label();
+        challengeDetailLabel = new Label();
+        challengeButton = new StudyButton();
+        rowsPanel = new CardPanel();
+        progressRow = new HomeRow();
+        courseRow = new HomeRow();
+        rushRow = new HomeRow();
+        mistakeRow = new HomeRow();
+        rankRow = new HomeRow();
+        toolTip = new ToolTip(components);
+        feedPanel.SuspendLayout();
+        headerPanel.SuspendLayout();
+        seasonBanner.SuspendLayout();
+        challengePanel.SuspendLayout();
+        rowsPanel.SuspendLayout();
         SuspendLayout();
         //
-        // overviewLayout
+        // feedPanel
         //
-        overviewLayout.ColumnCount = 1;
-        overviewLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        overviewLayout.Controls.Add(headerLayout, 0, 0);
-        overviewLayout.Controls.Add(statsLayout, 0, 1);
-        overviewLayout.Controls.Add(mainLayout, 0, 2);
-        overviewLayout.Dock = DockStyle.Fill;
-        overviewLayout.Location = new Point(0, 0);
-        overviewLayout.Name = "overviewLayout";
-        overviewLayout.Padding = new Padding(40, 28, 40, 32);
-        overviewLayout.RowCount = 3;
-        overviewLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 68F));
-        overviewLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 170F));
-        overviewLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        overviewLayout.Size = new Size(1040, 800);
-        overviewLayout.TabIndex = 0;
+        feedPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom;
+        feedPanel.AutoScroll = true;
+        feedPanel.Controls.Add(headerPanel);
+        feedPanel.Controls.Add(seasonBanner);
+        feedPanel.Controls.Add(studyNowButton);
+        feedPanel.Controls.Add(challengePanel);
+        feedPanel.Controls.Add(rowsPanel);
+        feedPanel.FlowDirection = FlowDirection.TopDown;
+        feedPanel.Location = new Point(190, 24);
+        feedPanel.Margin = new Padding(0);
+        feedPanel.Name = "feedPanel";
+        feedPanel.Size = new Size(660, 752);
+        feedPanel.TabIndex = 0;
+        feedPanel.WrapContents = false;
         //
-        // headerLayout
+        // headerPanel
         //
-        headerLayout.ColumnCount = 2;
-        headerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        headerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 114F));
-        headerLayout.Controls.Add(dateLabel, 0, 0);
-        headerLayout.Controls.Add(greetingLabel, 0, 1);
-        headerLayout.Controls.Add(studyNowButton, 1, 0);
-        headerLayout.Dock = DockStyle.Fill;
-        headerLayout.Margin = new Padding(0);
-        headerLayout.Name = "headerLayout";
-        headerLayout.RowCount = 2;
-        headerLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
-        headerLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44F));
-        headerLayout.Size = new Size(960, 68);
-        headerLayout.TabIndex = 0;
+        headerPanel.Controls.Add(avatarBox);
+        headerPanel.Controls.Add(greetingLabel);
+        headerPanel.Controls.Add(dateLabel);
+        headerPanel.Controls.Add(streakLabel);
+        headerPanel.Controls.Add(ratingLabel);
+        headerPanel.Margin = new Padding(0, 0, 0, 14);
+        headerPanel.Name = "headerPanel";
+        headerPanel.Size = new Size(640, 56);
+        headerPanel.TabIndex = 0;
         //
-        // dateLabel
+        // avatarBox
         //
-        dateLabel.Dock = DockStyle.Fill;
-        dateLabel.Font = new Font("Segoe UI", 10.5F);
-        dateLabel.ForeColor = Color.FromArgb(51, 65, 85);
-        dateLabel.Margin = new Padding(0);
-        dateLabel.Name = "dateLabel";
-        dateLabel.Size = new Size(846, 24);
-        dateLabel.TabIndex = 0;
-        dateLabel.Text = "Thứ năm, 06/11";
-        dateLabel.TextAlign = ContentAlignment.MiddleLeft;
+        avatarBox.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+        avatarBox.Location = new Point(0, 5);
+        avatarBox.Name = "avatarBox";
+        avatarBox.Size = new Size(46, 46);
+        avatarBox.TabIndex = 0;
+        avatarBox.Text = "lan";
         //
         // greetingLabel
         //
-        greetingLabel.Dock = DockStyle.Fill;
-        greetingLabel.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
-        greetingLabel.ForeColor = Color.FromArgb(15, 23, 42);
-        greetingLabel.Margin = new Padding(0);
-        greetingLabel.Name = "greetingLabel";
         greetingLabel.AutoEllipsis = true;
-        greetingLabel.Size = new Size(846, 44);
+        greetingLabel.Font = new Font("Segoe UI", 17F, FontStyle.Bold);
+        greetingLabel.ForeColor = Color.FromArgb(15, 23, 42);
+        greetingLabel.Location = new Point(58, 2);
+        greetingLabel.Name = "greetingLabel";
+        greetingLabel.Size = new Size(380, 32);
         greetingLabel.TabIndex = 1;
-        greetingLabel.Text = "Chào bạn, hôm nay học gì?";
+        greetingLabel.Text = "Chào lan";
         greetingLabel.TextAlign = ContentAlignment.MiddleLeft;
+        //
+        // dateLabel
+        //
+        dateLabel.Font = new Font("Segoe UI", 10F);
+        dateLabel.ForeColor = Color.FromArgb(51, 65, 85);
+        dateLabel.Location = new Point(58, 33);
+        dateLabel.Name = "dateLabel";
+        dateLabel.Size = new Size(380, 20);
+        dateLabel.TabIndex = 2;
+        dateLabel.Text = "Thứ hai, 14/12 · hôm nay học gì?";
+        dateLabel.TextAlign = ContentAlignment.MiddleLeft;
+        //
+        // streakLabel
+        //
+        streakLabel.BackColor = Color.FromArgb(255, 247, 224);
+        streakLabel.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+        streakLabel.ForeColor = Color.FromArgb(183, 121, 31);
+        streakLabel.IconName = "flame";
+        streakLabel.Location = new Point(456, 12);
+        streakLabel.Name = "streakLabel";
+        streakLabel.Size = new Size(76, 32);
+        streakLabel.TabIndex = 3;
+        streakLabel.Text = "6";
+        //
+        // ratingLabel
+        //
+        ratingLabel.BackColor = Color.FromArgb(227, 233, 251);
+        ratingLabel.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+        ratingLabel.ForeColor = Color.FromArgb(30, 58, 138);
+        ratingLabel.IconColor = Color.FromArgb(30, 58, 138);
+        ratingLabel.IconName = "star";
+        ratingLabel.Location = new Point(540, 12);
+        ratingLabel.Name = "ratingLabel";
+        ratingLabel.Size = new Size(100, 32);
+        ratingLabel.TabIndex = 4;
+        ratingLabel.Text = "1010";
+        //
+        // seasonBanner
+        //
+        seasonBanner.BackColor = Color.FromArgb(19, 84, 78);
+        seasonBanner.BorderVisible = false;
+        seasonBanner.Controls.Add(seasonLabel);
+        seasonBanner.Cursor = Cursors.Hand;
+        seasonBanner.Margin = new Padding(0, 0, 0, 14);
+        seasonBanner.Name = "seasonBanner";
+        seasonBanner.Padding = new Padding(16, 0, 16, 0);
+        seasonBanner.Size = new Size(640, 46);
+        seasonBanner.TabIndex = 1;
+        seasonBanner.Click += seasonBanner_Click;
+        //
+        // seasonLabel
+        //
+        seasonLabel.Dock = DockStyle.Fill;
+        seasonLabel.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+        seasonLabel.ForeColor = Color.White;
+        seasonLabel.Name = "seasonLabel";
+        seasonLabel.Size = new Size(608, 46);
+        seasonLabel.TabIndex = 0;
+        seasonLabel.Text = "Sự kiện Giáng sinh · còn 17 ngày · 10 từ";
+        seasonLabel.TextAlign = ContentAlignment.MiddleLeft;
+        seasonLabel.Click += seasonBanner_Click;
         //
         // studyNowButton
         //
         studyNowButton.BackColor = Color.FromArgb(15, 118, 110);
         studyNowButton.BorderVisible = false;
-        studyNowButton.Dock = DockStyle.Fill;
-        studyNowButton.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+        studyNowButton.CornerRadius = 14;
+        studyNowButton.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
         studyNowButton.ForeColor = Color.White;
-        studyNowButton.Margin = new Padding(0, 20, 0, 4);
+        studyNowButton.IconName = "cards";
+        studyNowButton.Margin = new Padding(0, 0, 0, 14);
         studyNowButton.Name = "studyNowButton";
-        headerLayout.SetRowSpan(studyNowButton, 2);
-        studyNowButton.Size = new Size(114, 44);
+        studyNowButton.Size = new Size(640, 60);
         studyNowButton.TabIndex = 2;
-        studyNowButton.Text = "Học ngay";
+        studyNowButton.Text = "Học ngay · 18 từ chưa thuộc";
         studyNowButton.Click += studyNowButton_Click;
         //
-        // statsLayout
+        // challengePanel
         //
-        statsLayout.ColumnCount = 4;
-        statsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-        statsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-        statsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-        statsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-        statsLayout.Controls.Add(totalPanel, 0, 0);
-        statsLayout.Controls.Add(learnedPanel, 1, 0);
-        statsLayout.Controls.Add(mistakePanel, 2, 0);
-        statsLayout.Controls.Add(folderPanel, 3, 0);
-        statsLayout.Dock = DockStyle.Fill;
-        statsLayout.Margin = new Padding(0, 20, 0, 24);
-        statsLayout.Name = "statsLayout";
-        statsLayout.RowCount = 1;
-        statsLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        statsLayout.Size = new Size(960, 126);
-        statsLayout.TabIndex = 1;
+        challengePanel.BackColor = Color.White;
+        challengePanel.Controls.Add(challengeTitleLabel);
+        challengePanel.Controls.Add(challengeInfoLabel);
+        challengePanel.Controls.Add(challengeDetailLabel);
+        challengePanel.Controls.Add(challengeButton);
+        challengePanel.Margin = new Padding(0, 0, 0, 14);
+        challengePanel.Name = "challengePanel";
+        challengePanel.Size = new Size(640, 132);
+        challengePanel.TabIndex = 3;
         //
-        // totalPanel
+        // challengeTitleLabel
         //
-        totalPanel.BackColor = Color.White;
-        totalPanel.Controls.Add(totalNoteLabel);
-        totalPanel.Controls.Add(totalLabel);
-        totalPanel.Controls.Add(totalTitleLabel);
-        totalPanel.Dock = DockStyle.Fill;
-        totalPanel.Margin = new Padding(0, 0, 12, 0);
-        totalPanel.Name = "totalPanel";
-        totalPanel.Padding = new Padding(21, 14, 16, 10);
-        totalPanel.Size = new Size(228, 126);
-        totalPanel.TabIndex = 0;
+        challengeTitleLabel.BackColor = Color.White;
+        challengeTitleLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+        challengeTitleLabel.ForeColor = Color.FromArgb(15, 118, 110);
+        challengeTitleLabel.LetterSpacing = 1.2F;
+        challengeTitleLabel.Location = new Point(22, 18);
+        challengeTitleLabel.Name = "challengeTitleLabel";
+        challengeTitleLabel.Size = new Size(300, 20);
+        challengeTitleLabel.TabIndex = 0;
+        challengeTitleLabel.Text = "THỬ THÁCH HÔM NAY";
         //
-        // totalNoteLabel
+        // challengeInfoLabel
         //
-        totalNoteLabel.Dock = DockStyle.Top;
-        totalNoteLabel.Font = new Font("Segoe UI", 9.5F);
-        totalNoteLabel.ForeColor = Color.FromArgb(93, 105, 125);
-        totalNoteLabel.Margin = new Padding(0);
-        totalNoteLabel.Name = "totalNoteLabel";
-        totalNoteLabel.Size = new Size(191, 24);
-        totalNoteLabel.TabIndex = 2;
-        totalNoteLabel.Text = "trong mọi thư mục";
-        totalNoteLabel.TextAlign = ContentAlignment.MiddleLeft;
+        challengeInfoLabel.AutoEllipsis = true;
+        challengeInfoLabel.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+        challengeInfoLabel.ForeColor = Color.FromArgb(15, 23, 42);
+        challengeInfoLabel.Location = new Point(22, 42);
+        challengeInfoLabel.Name = "challengeInfoLabel";
+        challengeInfoLabel.Size = new Size(420, 34);
+        challengeInfoLabel.TabIndex = 1;
+        challengeInfoLabel.Text = "10 từ · 14/12";
+        challengeInfoLabel.TextAlign = ContentAlignment.MiddleLeft;
         //
-        // totalLabel
+        // challengeDetailLabel
         //
-        totalLabel.Dock = DockStyle.Top;
-        totalLabel.Font = new Font("Segoe UI", 24F, FontStyle.Bold);
-        totalLabel.ForeColor = Color.FromArgb(15, 23, 42);
-        totalLabel.Margin = new Padding(0);
-        totalLabel.Name = "totalLabel";
-        totalLabel.Size = new Size(191, 46);
-        totalLabel.TabIndex = 1;
-        totalLabel.Text = "30";
-        totalLabel.TextAlign = ContentAlignment.MiddleLeft;
+        challengeDetailLabel.AutoEllipsis = true;
+        challengeDetailLabel.Font = new Font("Segoe UI", 9.5F);
+        challengeDetailLabel.ForeColor = Color.FromArgb(51, 65, 85);
+        challengeDetailLabel.Location = new Point(22, 80);
+        challengeDetailLabel.Name = "challengeDetailLabel";
+        challengeDetailLabel.Size = new Size(420, 22);
+        challengeDetailLabel.TabIndex = 2;
+        challengeDetailLabel.Text = "Mỗi người một lượt · 3 người đã làm · cao nhất 9/10";
+        challengeDetailLabel.TextAlign = ContentAlignment.MiddleLeft;
         //
-        // totalTitleLabel
+        // challengeButton
         //
-        totalTitleLabel.Dock = DockStyle.Top;
-        totalTitleLabel.Font = new Font("Segoe UI", 10.5F);
-        totalTitleLabel.ForeColor = Color.FromArgb(51, 65, 85);
-        totalTitleLabel.Margin = new Padding(0);
-        totalTitleLabel.Name = "totalTitleLabel";
-        totalTitleLabel.Size = new Size(191, 28);
-        totalTitleLabel.TabIndex = 0;
-        totalTitleLabel.Text = "Tổng số từ";
-        totalTitleLabel.TextAlign = ContentAlignment.MiddleLeft;
+        challengeButton.BackColor = Color.FromArgb(15, 118, 110);
+        challengeButton.BorderVisible = false;
+        challengeButton.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+        challengeButton.ForeColor = Color.White;
+        challengeButton.Location = new Point(478, 45);
+        challengeButton.Name = "challengeButton";
+        challengeButton.Size = new Size(140, 42);
+        challengeButton.TabIndex = 3;
+        challengeButton.Text = "Làm ngay";
+        challengeButton.Click += challengeButton_Click;
         //
-        // learnedPanel
+        // rowsPanel
         //
-        learnedPanel.BackColor = Color.White;
-        learnedPanel.Controls.Add(learnedNoteLabel);
-        learnedPanel.Controls.Add(learnedLabel);
-        learnedPanel.Controls.Add(learnedTitleLabel);
-        learnedPanel.Dock = DockStyle.Fill;
-        learnedPanel.Margin = new Padding(4, 0, 8, 0);
-        learnedPanel.Name = "learnedPanel";
-        learnedPanel.Padding = new Padding(21, 14, 16, 10);
-        learnedPanel.Size = new Size(228, 126);
-        learnedPanel.TabIndex = 1;
+        rowsPanel.BackColor = Color.White;
+        rowsPanel.Controls.Add(rankRow);
+        rowsPanel.Controls.Add(mistakeRow);
+        rowsPanel.Controls.Add(rushRow);
+        rowsPanel.Controls.Add(courseRow);
+        rowsPanel.Controls.Add(progressRow);
+        rowsPanel.Margin = new Padding(0);
+        rowsPanel.Name = "rowsPanel";
+        rowsPanel.Padding = new Padding(4, 6, 4, 6);
+        rowsPanel.Size = new Size(640, 322);
+        rowsPanel.TabIndex = 4;
         //
-        // learnedNoteLabel
+        // progressRow
         //
-        learnedNoteLabel.Dock = DockStyle.Top;
-        learnedNoteLabel.Font = new Font("Segoe UI", 9.5F);
-        learnedNoteLabel.ForeColor = Color.FromArgb(93, 105, 125);
-        learnedNoteLabel.Margin = new Padding(0);
-        learnedNoteLabel.Name = "learnedNoteLabel";
-        learnedNoteLabel.Size = new Size(191, 24);
-        learnedNoteLabel.TabIndex = 2;
-        learnedNoteLabel.Text = "chọn Nhớ hoặc Dễ";
-        learnedNoteLabel.TextAlign = ContentAlignment.MiddleLeft;
+        progressRow.Detail = "12/30 từ đã nhớ · 4 thư mục";
+        progressRow.DividerVisible = false;
+        progressRow.Dock = DockStyle.Top;
+        progressRow.Name = "progressRow";
+        progressRow.Percent = 40;
+        progressRow.Size = new Size(632, 62);
+        progressRow.TabIndex = 0;
+        progressRow.Text = "Tiến độ ghi nhớ";
+        progressRow.Value = "40%";
+        progressRow.Click += progressRow_Click;
         //
-        // learnedLabel
+        // courseRow
         //
-        learnedLabel.Dock = DockStyle.Top;
-        learnedLabel.Font = new Font("Segoe UI", 24F, FontStyle.Bold);
-        learnedLabel.ForeColor = Color.FromArgb(15, 118, 110);
-        learnedLabel.Margin = new Padding(0);
-        learnedLabel.Name = "learnedLabel";
-        learnedLabel.Size = new Size(191, 46);
-        learnedLabel.TabIndex = 1;
-        learnedLabel.Text = "12";
-        learnedLabel.TextAlign = ContentAlignment.MiddleLeft;
+        courseRow.Detail = "Tiếng Anh hằng ngày";
+        courseRow.Dock = DockStyle.Top;
+        courseRow.IconName = "course";
+        courseRow.Name = "courseRow";
+        courseRow.Size = new Size(632, 62);
+        courseRow.TabIndex = 1;
+        courseRow.Text = "Học tiếp: Bài 2 · At work";
+        courseRow.Value = "6/10";
+        courseRow.Click += courseRow_Click;
         //
-        // learnedTitleLabel
+        // rushRow
         //
-        learnedTitleLabel.Dock = DockStyle.Top;
-        learnedTitleLabel.Font = new Font("Segoe UI", 10.5F);
-        learnedTitleLabel.ForeColor = Color.FromArgb(51, 65, 85);
-        learnedTitleLabel.Margin = new Padding(0);
-        learnedTitleLabel.Name = "learnedTitleLabel";
-        learnedTitleLabel.Size = new Size(191, 28);
-        learnedTitleLabel.TabIndex = 0;
-        learnedTitleLabel.Text = "Đã nhớ";
-        learnedTitleLabel.TextAlign = ContentAlignment.MiddleLeft;
+        rushRow.Detail = "3 phút · 3 mạng";
+        rushRow.Dock = DockStyle.Top;
+        rushRow.IconBackColor = Color.FromArgb(255, 237, 222);
+        rushRow.IconColor = Color.FromArgb(194, 65, 12);
+        rushRow.IconName = "rush";
+        rushRow.Name = "rushRow";
+        rushRow.Size = new Size(632, 62);
+        rushRow.TabIndex = 2;
+        rushRow.Text = "Đua từ";
+        rushRow.Value = "Kỷ lục 19";
+        rushRow.Click += rushRow_Click;
         //
-        // mistakePanel
+        // mistakeRow
         //
-        mistakePanel.BackColor = Color.White;
-        mistakePanel.Controls.Add(mistakeNoteLabel);
-        mistakePanel.Controls.Add(mistakeValuePanel);
-        mistakePanel.Controls.Add(mistakeTitleLabel);
-        mistakePanel.Dock = DockStyle.Fill;
-        mistakePanel.Margin = new Padding(8, 0, 4, 0);
-        mistakePanel.Name = "mistakePanel";
-        mistakePanel.Padding = new Padding(21, 14, 16, 10);
-        mistakePanel.Size = new Size(228, 126);
-        mistakePanel.TabIndex = 2;
+        mistakeRow.Detail = "Gõ sai hoặc chọn Quên, Khó";
+        mistakeRow.Dock = DockStyle.Top;
+        mistakeRow.IconBackColor = Color.FromArgb(255, 237, 222);
+        mistakeRow.IconColor = Color.FromArgb(194, 65, 12);
+        mistakeRow.IconName = "book";
+        mistakeRow.Name = "mistakeRow";
+        mistakeRow.Size = new Size(632, 62);
+        mistakeRow.TabIndex = 3;
+        mistakeRow.Text = "Sổ lỗi";
+        mistakeRow.Value = "7 từ";
+        mistakeRow.Click += mistakeRow_Click;
         //
-        // mistakeNoteLabel
+        // rankRow
         //
-        mistakeNoteLabel.Dock = DockStyle.Top;
-        mistakeNoteLabel.Font = new Font("Segoe UI", 9.5F);
-        mistakeNoteLabel.ForeColor = Color.FromArgb(93, 105, 125);
-        mistakeNoteLabel.Margin = new Padding(0);
-        mistakeNoteLabel.Name = "mistakeNoteLabel";
-        mistakeNoteLabel.Size = new Size(191, 24);
-        mistakeNoteLabel.TabIndex = 2;
-        mistakeNoteLabel.Text = "Quên, Khó hoặc gõ sai";
-        mistakeNoteLabel.TextAlign = ContentAlignment.MiddleLeft;
-        //
-        // mistakeValuePanel
-        //
-        mistakeValuePanel.Controls.Add(mistakeLabel);
-        mistakeValuePanel.Controls.Add(mistakeUnitLabel);
-        mistakeValuePanel.Dock = DockStyle.Top;
-        mistakeValuePanel.Margin = new Padding(0);
-        mistakeValuePanel.Name = "mistakeValuePanel";
-        mistakeValuePanel.Size = new Size(191, 46);
-        mistakeValuePanel.TabIndex = 1;
-        mistakeValuePanel.WrapContents = false;
-        //
-        // mistakeLabel
-        //
-        mistakeLabel.AutoSize = true;
-        mistakeLabel.Font = new Font("Segoe UI", 24F, FontStyle.Bold);
-        mistakeLabel.ForeColor = Color.FromArgb(194, 65, 12);
-        mistakeLabel.Margin = new Padding(0, 2, 0, 0);
-        mistakeLabel.Name = "mistakeLabel";
-        mistakeLabel.Size = new Size(36, 45);
-        mistakeLabel.TabIndex = 0;
-        mistakeLabel.Text = "7";
-        //
-        // mistakeUnitLabel
-        //
-        mistakeUnitLabel.AutoSize = true;
-        mistakeUnitLabel.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
-        mistakeUnitLabel.ForeColor = Color.FromArgb(15, 23, 42);
-        mistakeUnitLabel.Margin = new Padding(0, 18, 0, 0);
-        mistakeUnitLabel.Name = "mistakeUnitLabel";
-        mistakeUnitLabel.Size = new Size(96, 19);
-        mistakeUnitLabel.TabIndex = 1;
-        mistakeUnitLabel.Text = "từ cần luyện";
-        //
-        // mistakeTitleLabel
-        //
-        mistakeTitleLabel.Dock = DockStyle.Top;
-        mistakeTitleLabel.Font = new Font("Segoe UI", 10.5F);
-        mistakeTitleLabel.ForeColor = Color.FromArgb(51, 65, 85);
-        mistakeTitleLabel.Margin = new Padding(0);
-        mistakeTitleLabel.Name = "mistakeTitleLabel";
-        mistakeTitleLabel.Size = new Size(191, 28);
-        mistakeTitleLabel.TabIndex = 0;
-        mistakeTitleLabel.Text = "Sổ lỗi";
-        mistakeTitleLabel.TextAlign = ContentAlignment.MiddleLeft;
-        //
-        // folderPanel
-        //
-        folderPanel.BackColor = Color.White;
-        folderPanel.Controls.Add(folderNoteLabel);
-        folderPanel.Controls.Add(folderLabel);
-        folderPanel.Controls.Add(folderTitleLabel);
-        folderPanel.Dock = DockStyle.Fill;
-        folderPanel.Margin = new Padding(12, 0, 0, 0);
-        folderPanel.Name = "folderPanel";
-        folderPanel.Padding = new Padding(21, 14, 16, 10);
-        folderPanel.Size = new Size(228, 126);
-        folderPanel.TabIndex = 3;
-        //
-        // folderNoteLabel
-        //
-        folderNoteLabel.Dock = DockStyle.Top;
-        folderNoteLabel.Font = new Font("Segoe UI", 9.5F);
-        folderNoteLabel.ForeColor = Color.FromArgb(93, 105, 125);
-        folderNoteLabel.Margin = new Padding(0);
-        folderNoteLabel.Name = "folderNoteLabel";
-        folderNoteLabel.Size = new Size(191, 24);
-        folderNoteLabel.TabIndex = 2;
-        folderNoteLabel.Text = "kể cả Chưa phân loại";
-        folderNoteLabel.TextAlign = ContentAlignment.MiddleLeft;
-        //
-        // folderLabel
-        //
-        folderLabel.Dock = DockStyle.Top;
-        folderLabel.Font = new Font("Segoe UI", 24F, FontStyle.Bold);
-        folderLabel.ForeColor = Color.FromArgb(15, 23, 42);
-        folderLabel.Margin = new Padding(0);
-        folderLabel.Name = "folderLabel";
-        folderLabel.Size = new Size(191, 46);
-        folderLabel.TabIndex = 1;
-        folderLabel.Text = "4";
-        folderLabel.TextAlign = ContentAlignment.MiddleLeft;
-        //
-        // folderTitleLabel
-        //
-        folderTitleLabel.Dock = DockStyle.Top;
-        folderTitleLabel.Font = new Font("Segoe UI", 10.5F);
-        folderTitleLabel.ForeColor = Color.FromArgb(51, 65, 85);
-        folderTitleLabel.Margin = new Padding(0);
-        folderTitleLabel.Name = "folderTitleLabel";
-        folderTitleLabel.Size = new Size(191, 28);
-        folderTitleLabel.TabIndex = 0;
-        folderTitleLabel.Text = "Thư mục";
-        folderTitleLabel.TextAlign = ContentAlignment.MiddleLeft;
-        //
-        // mainLayout
-        //
-        mainLayout.ColumnCount = 2;
-        mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 54.3F));
-        mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45.7F));
-        mainLayout.Controls.Add(progressPanel, 0, 0);
-        mainLayout.Dock = DockStyle.Fill;
-        mainLayout.Margin = new Padding(0);
-        mainLayout.Name = "mainLayout";
-        mainLayout.RowCount = 1;
-        mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        mainLayout.Size = new Size(960, 502);
-        mainLayout.TabIndex = 2;
-        //
-        // progressPanel
-        //
-        progressPanel.BackColor = Color.White;
-        progressPanel.Controls.Add(progressTitleLabel);
-        progressPanel.Dock = DockStyle.Fill;
-        progressPanel.Margin = new Padding(0, 0, 16, 0);
-        progressPanel.Name = "progressPanel";
-        progressPanel.Padding = new Padding(25, 24, 25, 18);
-        progressPanel.Size = new Size(505, 502);
-        progressPanel.TabIndex = 0;
-        progressPanel.Paint += progressPanel_Paint;
-        //
-        // progressTitleLabel
-        //
-        progressTitleLabel.Dock = DockStyle.Top;
-        progressTitleLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-        progressTitleLabel.ForeColor = Color.FromArgb(15, 118, 110);
-        progressTitleLabel.Margin = new Padding(0);
-        progressTitleLabel.Name = "progressTitleLabel";
-        progressTitleLabel.LetterSpacing = 1.2F;
-        progressTitleLabel.Size = new Size(455, 24);
-        progressTitleLabel.TabIndex = 0;
-        progressTitleLabel.Text = "TIẾN ĐỘ GHI NHỚ";
-        progressTitleLabel.TextAlign = ContentAlignment.MiddleLeft;
+        rankRow.Detail = "Thử thách hôm nay";
+        rankRow.Dock = DockStyle.Top;
+        rankRow.IconBackColor = Color.FromArgb(227, 233, 251);
+        rankRow.IconColor = Color.FromArgb(30, 58, 138);
+        rankRow.IconName = "trophy";
+        rankRow.Name = "rankRow";
+        rankRow.Size = new Size(632, 62);
+        rankRow.TabIndex = 4;
+        rankRow.Text = "Bảng xếp hạng";
+        rankRow.Value = "Hạng 2";
+        rankRow.Click += rankRow_Click;
         //
         // OverviewScreen
         //
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         BackColor = Color.FromArgb(247, 249, 250);
-        Controls.Add(overviewLayout);
+        Controls.Add(feedPanel);
         Font = new Font("Segoe UI", 9F);
         Name = "OverviewScreen";
         Size = new Size(1040, 800);
         Load += OverviewScreen_Load;
-        overviewLayout.ResumeLayout(false);
-        headerLayout.ResumeLayout(false);
-        statsLayout.ResumeLayout(false);
-        totalPanel.ResumeLayout(false);
-        learnedPanel.ResumeLayout(false);
-        mistakePanel.ResumeLayout(false);
-        mistakeValuePanel.ResumeLayout(false);
-        mistakeValuePanel.PerformLayout();
-        folderPanel.ResumeLayout(false);
-        mainLayout.ResumeLayout(false);
-        progressPanel.ResumeLayout(false);
+        feedPanel.ResumeLayout(false);
+        headerPanel.ResumeLayout(false);
+        seasonBanner.ResumeLayout(false);
+        challengePanel.ResumeLayout(false);
+        rowsPanel.ResumeLayout(false);
         ResumeLayout(false);
     }
 
     #endregion
 
-    private TableLayoutPanel overviewLayout;
-    private TableLayoutPanel headerLayout;
-    private Label dateLabel;
+    private FlowLayoutPanel feedPanel;
+    private Panel headerPanel;
+    private AvatarBox avatarBox;
     private Label greetingLabel;
+    private Label dateLabel;
+    private ChipLabel streakLabel;
+    private ChipLabel ratingLabel;
+    private CardPanel seasonBanner;
+    private Label seasonLabel;
     private StudyButton studyNowButton;
-    private TableLayoutPanel statsLayout;
-    private CardPanel totalPanel;
-    private Label totalNoteLabel;
-    private Label totalLabel;
-    private Label totalTitleLabel;
-    private CardPanel learnedPanel;
-    private Label learnedNoteLabel;
-    private Label learnedLabel;
-    private Label learnedTitleLabel;
-    private CardPanel mistakePanel;
-    private Label mistakeNoteLabel;
-    private FlowLayoutPanel mistakeValuePanel;
-    private Label mistakeLabel;
-    private Label mistakeUnitLabel;
-    private Label mistakeTitleLabel;
-    private CardPanel folderPanel;
-    private Label folderNoteLabel;
-    private Label folderLabel;
-    private Label folderTitleLabel;
-    private TableLayoutPanel mainLayout;
-    private CardPanel progressPanel;
-    private SpacedLabel progressTitleLabel;
+    private CardPanel challengePanel;
+    private SpacedLabel challengeTitleLabel;
+    private Label challengeInfoLabel;
+    private Label challengeDetailLabel;
+    private StudyButton challengeButton;
+    private CardPanel rowsPanel;
+    private HomeRow progressRow;
+    private HomeRow courseRow;
+    private HomeRow rushRow;
+    private HomeRow mistakeRow;
+    private HomeRow rankRow;
+    private ToolTip toolTip;
 }
