@@ -3,7 +3,8 @@ using System.Drawing.Drawing2D;
 
 namespace FlashcardsApp;
 
-// Ô xám bo góc, chấm tròn rồi tới chữ: "Đã lưu vào máy". IsError = true thì chấm và chữ màu đỏ.
+// Ô xám bo góc, chấm tròn rồi tới chữ, ví dụ "Đã lưu vào máy".
+// Đặt IsError = true thì chấm và chữ chuyển sang màu đỏ.
 public class StatusLabel : Label
 {
     private bool isError;
@@ -17,19 +18,27 @@ public class StatusLabel : Label
 
     protected override void OnPaint(PaintEventArgs e)
     {
-        var scale = DeviceDpi / 96f;
         var g = e.Graphics;
         g.Clear(Parent?.BackColor ?? Color.White);
         g.SmoothingMode = SmoothingMode.AntiAlias;
-        using var path = StudyTheme.Round(new RectangleF(0, 0, Width - 1, Height - 1), 8 * scale);
+
+        // Nền bo góc 8
+        var bounds = new RectangleF(0, 0, Width - 1, Height - 1);
+        using var path = StudyTheme.RoundedRectangle(bounds, StudyTheme.Scale(this, 8));
         using var background = new SolidBrush(BackColor);
         g.FillPath(background, path);
-        var color = isError ? Color.Firebrick : StudyTheme.Teal;
-        using var dot = new SolidBrush(color);
-        var dotSize = 7 * scale;
-        g.FillEllipse(dot, 13 * scale, (Height - dotSize) / 2, dotSize, dotSize);
-        var textLeft = (int)(29 * scale);
-        TextRenderer.DrawText(g, Text, Font, new Rectangle(textLeft, 0, Width - textLeft, Height), isError ? Color.Firebrick : ForeColor,
+
+        // Chấm tròn cách lề trái 13
+        var dotColor = isError ? StudyTheme.Error : StudyTheme.Teal;
+        var dotSize = StudyTheme.Scale(this, 7);
+        using var dotBrush = new SolidBrush(dotColor);
+        g.FillEllipse(dotBrush, StudyTheme.Scale(this, 13), (Height - dotSize) / 2, dotSize, dotSize);
+
+        // Chữ bắt đầu cách lề trái 29, dài quá thì hiện "..."
+        var textColor = isError ? StudyTheme.Error : ForeColor;
+        var textLeft = (int)StudyTheme.Scale(this, 29);
+        var textBounds = new Rectangle(textLeft, 0, Width - textLeft, Height);
+        TextRenderer.DrawText(g, Text, Font, textBounds, textColor,
             TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
     }
 }
