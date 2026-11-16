@@ -14,12 +14,24 @@ FlashcardsApp/
 │   ├── Study/          StudyScreen         Học lật thẻ
 │   ├── TypeAnswer/     TypeAnswerScreen    Gõ đáp án
 │   ├── Mistake/        MistakeScreen       Sổ lỗi
-│   └── Match/          MatchScreen         Ghép cặp, tùy chọn
-├── Dialogs/          Hộp thoại bật lên: AddCardDialog, ImportWordsDialog
-├── Controls/         Nút, thẻ vẽ tay và màu chung (StudyControls.cs, StudyTheme)
+│   ├── Match/          MatchScreen         Ghép cặp, tùy chọn
+│   ├── Course/         CourseScreen        Khóa học
+│   ├── Challenge/      ChallengeScreen     Thử thách hằng ngày
+│   ├── Rush/           RushScreen          Đua từ
+│   ├── Leaderboard/    LeaderboardScreen   Bảng xếp hạng
+│   └── Admin/          AdminScreen         Quản trị, chỉ Admin thấy; mỗi tab một file:
+│                       AdminCoursePanel, AdminSeasonPanel, AdminChallengePanel, AdminUserPanel
+├── Dialogs/          Hộp thoại bật lên: LoginDialog, AddCardDialog, ImportWordsDialog
+├── Controls/         Nút, khung vẽ tay và màu chung (StudyButton, CardPanel, ProgressRing, HomeRow,
+│                     ChipLabel, AvatarBox, LogoBox, StudyTheme, Icons)
 └── Data/             Lớp dữ liệu và mọi câu SQL
-                      Flashcard, Folder, Database, FlashcardStore, FolderStore, StudyStore
+                      Lớp chứa dữ liệu: User, Flashcard, Folder, Course, Lesson, RankRow,
+                        ChallengeResult, ChallengeDay, UserSummary
+                      Đọc ghi: Database, Session, UserStore, FlashcardStore, FolderStore, StudyStore,
+                        ActivityStore, CourseStore, ChallengeStore, RushStore
 ```
+
+Các hàm chưa viết đã có sẵn tên, tham số và chú thích `TODO (#số issue)` ghi cần làm gì. Trong Visual Studio mở **View → Task List** để thấy hết các TODO. Hàm chưa viết trả về danh sách rỗng, `0` hoặc `null`, nên app vẫn chạy được trong lúc mọi người làm dần; không đổi tên hay tham số của các hàm này, vì màn khác đã gọi tới.
 
 | Phần | Được làm | Không được làm |
 |---|---|---|
@@ -47,7 +59,7 @@ Màn này không đụng vào nút hay ô của màn khác. Muốn nhờ màn kh
 | `StartFolder(folderId)` | `StudyScreen` | Nút Học thư mục này, nút Học ngay | Bắt đầu học một thư mục |
 | `Start(cards)` | `TypeAnswerScreen` | Nút Luyện lại ở Sổ lỗi | Luyện gõ một danh sách từ |
 
-Cần thêm hàm kiểu này thì ghi vào bảng trên và báo người làm màn đó.
+Cần thêm hàm kiểu này thì ghi vào bảng trên và báo người làm màn đó. Danh sách mọi hàm của app, kể cả hàm dữ liệu, xem ở [05 – Danh sách hàm](05-danh-sach-ham.md).
 
 ## 3. Hộp thoại
 
@@ -110,7 +122,7 @@ private void saveButton_Click(object sender, EventArgs e)
 5. **Kéo thả bằng Designer**, không gõ tay vào `.Designer.cs`. Commit đủ các file của màn: `.cs`, `.Designer.cs`, `.resx` nếu có.
 6. **Mọi file dùng `namespace FlashcardsApp;`**, dù nằm ở thư mục nào. Tạo file trong thư mục con (ví dụ chuột phải `Screens/Study` → **Add → New Item**), Visual Studio tự ghi `namespace FlashcardsApp.Screens.Study`: sửa ngay thành `namespace FlashcardsApp;`, nếu không file đó sẽ không gọi được các lớp khác. Với màn mới, sửa cả file `.cs` lẫn `.Designer.cs`.
 7. **Một lớp một file**, tên file trùng tên lớp: lớp `FolderStore` nằm trong `FolderStore.cs`.
-8. **Màu và chữ lấy trong `StudyTheme`** (`Controls/StudyControls.cs`), không tự gõ mã màu, để các màn trông giống nhau.
+8. **Màu lấy trong `StudyTheme`** (`Controls/StudyTheme.cs`), không tự gõ mã màu, để các màn trông giống nhau.
 
 ## 6. Đặt tên
 

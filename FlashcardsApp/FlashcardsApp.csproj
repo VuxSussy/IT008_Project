@@ -29,8 +29,29 @@
     <Compile Update="Screens\Mistake\MistakeScreen.Designer.cs" DependentUpon="MistakeScreen.cs" />
     <Compile Update="Screens\Match\MatchScreen.cs" SubType="UserControl" />
     <Compile Update="Screens\Match\MatchScreen.Designer.cs" DependentUpon="MatchScreen.cs" />
+    <Compile Update="Screens\Course\CourseScreen.cs" SubType="UserControl" />
+    <Compile Update="Screens\Course\CourseScreen.Designer.cs" DependentUpon="CourseScreen.cs" />
+    <Compile Update="Screens\Challenge\ChallengeScreen.cs" SubType="UserControl" />
+    <Compile Update="Screens\Challenge\ChallengeScreen.Designer.cs" DependentUpon="ChallengeScreen.cs" />
+    <Compile Update="Screens\Rush\RushScreen.cs" SubType="UserControl" />
+    <Compile Update="Screens\Rush\RushScreen.Designer.cs" DependentUpon="RushScreen.cs" />
+    <Compile Update="Screens\Leaderboard\LeaderboardScreen.cs" SubType="UserControl" />
+    <Compile Update="Screens\Leaderboard\LeaderboardScreen.Designer.cs" DependentUpon="LeaderboardScreen.cs" />
+    <Compile Update="Screens\Admin\AdminScreen.cs" SubType="UserControl" />
+    <Compile Update="Screens\Admin\AdminScreen.Designer.cs" DependentUpon="AdminScreen.cs" />
+    <Compile Update="Screens\Admin\AdminCoursePanel.cs" SubType="UserControl" />
+    <Compile Update="Screens\Admin\AdminCoursePanel.Designer.cs" DependentUpon="AdminCoursePanel.cs" />
+    <Compile Update="Screens\Admin\AdminSeasonPanel.cs" SubType="UserControl" />
+    <Compile Update="Screens\Admin\AdminSeasonPanel.Designer.cs" DependentUpon="AdminSeasonPanel.cs" />
+    <Compile Update="Screens\Admin\AdminChallengePanel.cs" SubType="UserControl" />
+    <Compile Update="Screens\Admin\AdminChallengePanel.Designer.cs" DependentUpon="AdminChallengePanel.cs" />
+    <Compile Update="Screens\Admin\AdminUserPanel.cs" SubType="UserControl" />
+    <Compile Update="Screens\Admin\AdminUserPanel.Designer.cs" DependentUpon="AdminUserPanel.cs" />
     <Compile Update="MainWindow.cs" SubType="Form" />
     <Compile Update="MainWindow.Designer.cs" DependentUpon="MainWindow.cs" />
+    <Compile Update="Dialogs\AddCardDialog.Designer.cs" DependentUpon="AddCardDialog.cs" />
     <Compile Update="Dialogs\AddCardDialog.cs" SubType="Form" />
+    <Compile Update="Dialogs\LoginDialog.cs" SubType="Form" />
+    <Compile Update="Dialogs\LoginDialog.Designer.cs" DependentUpon="LoginDialog.cs" />
   </ItemGroup>
 </Project>
