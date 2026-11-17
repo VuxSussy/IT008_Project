@@ -4,7 +4,7 @@
 
 1. **Git**: <https://git-scm.com/download/win>
 2. **Visual Studio 2026 Community**: <https://visualstudio.microsoft.com/>. Tick ô **.NET desktop development**.
-3. App dùng **SQLite**, dữ liệu là một file tự tạo khi mở app.
+3. **SQL Server 2022 Express** (chọn kiểu cài **Basic**) và **SQL Server Management Studio** để xem dữ liệu. App tự tạo cơ sở dữ liệu `Flashcards` khi mở lần đầu (xem [03 – Database](03-database.md)).
 4. Gửi tên tài khoản GitHub cho trưởng nhóm để được thêm vào nhóm sau đó clone repo về:
 
 ```bash
@@ -24,7 +24,7 @@ git clone https://github.com/VuxSussy/IT008_Project.git
 ## Có dữ liệu thật (sau khi xong thẻ 03, khoảng 7/11)
 
 1. Kéo code mới về: `git switch main` rồi `git pull`.
-2. Bấm **F5** trong Visual Studio. Lần đầu mở, app tự tạo file `flashcards.db` và thêm 30 từ mẫu.
+2. Bấm **F5** trong Visual Studio. Lần đầu mở, app tự tạo cơ sở dữ liệu `Flashcards`, 3 tài khoản mẫu (`admin`, `lan`, `minh`, mật khẩu `123456`) và 30 từ mẫu.
 
 ## Ai dùng macOS
 
