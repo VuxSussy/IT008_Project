@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.2" />
   </ItemGroup>
 
   <!-- Mỗi màn hiện 1 mục trong Solution Explorer: file Designer nằm gọn bên dưới, nhấp đúp mở thẳng Designer -->

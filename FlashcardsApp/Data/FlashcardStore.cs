@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Globalization;
-using Microsoft.Data.Sqlite;
+using Microsoft.Data.SqlClient;
 using System.Security.Cryptography;
 
 namespace FlashcardsApp;
@@ -15,14 +15,14 @@ public static class FlashcardStore
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "FlashcardsApp", "database.db");
 
-    private static SqliteConnection Open(string path)
+    private static SqlConnection Open(string path)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
-        var conn = new SqliteConnection($"Data Source={path};Mode=ReadWriteCreate");
+        var conn = new SqlConnection($"Data Source={path};Mode=ReadWriteCreate");
         conn.Open(); ;
         return conn;
     }
-    private static void EnsureDatabase(SqliteConnection conn)
+    private static void EnsureDatabase(SqlConnection conn)
     {
         using (var create = conn.CreateCommand())
         {
@@ -74,7 +74,7 @@ public static class FlashcardStore
             }
             return cards;
         }
-        catch (SqliteException ex)
+        catch (SqlException ex)
         {
             throw new IOException(ex.Message, ex);
         }
@@ -115,20 +115,14 @@ public static class FlashcardStore
             }
             tx.Commit();
         }
-        catch (SqliteException ex)
+        catch (SqlException ex)
         {
             throw new IOException(ex.Message, ex);
         }
     }
 
-    private static void Validate(List<Flashcard> cards)
-    {
-        if (cards.Any(card => card is null || string.IsNullOrWhiteSpace(card.Word)
-            || string.IsNullOrWhiteSpace(card.Meaning) || card.LastRating is < 0 or > 4))
-            throw new InvalidDataException("Thẻ cần có từ, nghĩa và mức đánh giá hợp lệ từ 0 đến 4.");
-    }
 
-    // ===== Đọc từ file SQLite (#4) =====
+    // ===== Đọc từ file SQl (#4) =====
     // Load, Save, Validate ở trên là của bản chạy thử (đọc file JSON). Khi 2 hàm dưới đây chạy được thì:
     //   1. đổi chỗ gọi Load trong MainWindow.CountMistakes và OverviewScreen.ShowNumbers sang GetAll()
     //   2. xóa Load, Save, Validate, DefaultPath
@@ -143,6 +137,29 @@ public static class FlashcardStore
         // TODO (#4): chép code ở docs/03 mục "Đọc dữ liệu (ví dụ FlashcardStore.GetAll)":
         // mở kết nối bằng Database.ConnectionString, SELECT đủ 11 cột, mỗi dòng đọc được thì cards.Add(new Flashcard { ... })
 
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand(
+            "SELECT Id, FolderId, Word, Meaning, Pronunciation, Example, ExampleTranslation, MemoryNote, " +
+            "LastRating, WrongCount, LastWrongAnswer FROM Flashcards", conn);
+        conn.Open();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            cards.Add(new Flashcard
+            {
+                Id = reader.GetInt32(0),
+                FolderId = reader.GetInt32(1),
+                Word = reader.GetString(2),
+                Meaning = reader.GetString(3),
+                Pronunciation = reader.GetString(4),
+                Example = reader.GetString(5),
+                ExampleTranslation = reader.GetString(6),
+                MemoryNote = reader.GetString(7),
+                LastRating = reader.GetInt32(8),
+                WrongCount = reader.GetInt32(9),
+                LastWrongAnswer = reader.GetString(10)
+            });
+        }
         return cards;
     }
 
@@ -154,7 +171,30 @@ public static class FlashcardStore
         // TODO (#4): giống GetAll, thêm "WHERE FolderId = @folderId" vào cuối câu SELECT và truyền giá trị bằng
         //     cmd.Parameters.AddWithValue("@folderId", folderId);
         // (không cộng chuỗi vào câu SQL, xem docs/02 quy tắc 1)
-
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand(
+            "SELECT Id, FolderId, Word, Meaning, Pronunciation, Example, ExampleTranslation, MemoryNote, " +
+            "LastRating, WrongCount, LastWrongAnswer FROM Flashcards", conn);
+        conn.Open();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            cards.Add(new Flashcard
+            {
+                Id = reader.GetInt32(0),
+                FolderId = reader.GetInt32(1),
+                Word = reader.GetString(2),
+                Meaning = reader.GetString(3),
+                Pronunciation = reader.GetString(4),
+                Example = reader.GetString(5),
+                ExampleTranslation = reader.GetString(6),
+                MemoryNote = reader.GetString(7),
+                LastRating = reader.GetInt32(8),
+                WrongCount = reader.GetInt32(9),
+                LastWrongAnswer = reader.GetString(10)
+            });
+        }
+        return cards;
         return cards;
     }
 

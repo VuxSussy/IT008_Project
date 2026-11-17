@@ -1,4 +1,4 @@
-using Microsoft.Data.Sqlite;
+using Microsoft.Data.SqlClient;
 
 namespace FlashcardsApp;
 
@@ -7,26 +7,61 @@ namespace FlashcardsApp;
 public static class Database
 {
     // File dữ liệu nằm cạnh file chạy của app: FlashcardsApp/bin/Debug/net10.0-windows/flashcards.db
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "flashcards.db");
-
     // Mọi lớp ...Store dùng chuỗi này để mở kết nối:
     //     using var conn = new SqliteConnection(Database.ConnectionString);
     // Foreign Keys=True: không cho gán từ vào thư mục không tồn tại
-    public static string ConnectionString => $"Data Source={FilePath};Foreign Keys=True";
-
+    public static string ConnectionString =>
+        Environment.GetEnvironmentVariable("FLASHCARDS_DB")
+        ?? @"Server=localhost\SQLEXPRESS;Database=FlashcardsDb;Trusted_Connection=True;TrustServerCertificate=True";
     // Program.cs gọi hàm này một lần, trước khi mở cửa sổ chính.
     // Đã có file thì thôi; chưa có thì tạo bảng và thêm dữ liệu mẫu.
     public static void EnsureCreated()
     {
-        if (File.Exists(FilePath)) return;
+        // Bước 1: nối vào master, chưa có FlashcardsDb thì tạo
+        var builder = new SqlConnectionStringBuilder(ConnectionString);
+        var dbName = builder.InitialCatalog;      // "FlashcardsDb"
+        builder.InitialCatalog = "master";
 
-        // TODO (#4): mở kết nối rồi chạy CreateTablesSql + SampleDataSql (code mẫu ở docs/03, mục "Tạo bảng và 30 từ mẫu"):
-        //     using var conn = new SqliteConnection(ConnectionString);
-        //     conn.Open();
-        //     using var cmd = conn.CreateCommand();
-        //     cmd.CommandText = CreateTablesSql + SampleDataSql;
-        //     cmd.ExecuteNonQuery();
-        // Viết xong thì thử: xóa file flashcards.db, bấm F5, app phải tự tạo lại file.
+        using (var master = new SqlConnection(builder.ConnectionString))
+        {
+            master.Open();
+            using var cmd = master.CreateCommand();
+            cmd.CommandText = @"
+            IF DB_ID(@db) IS NULL
+            BEGIN
+                DECLARE @sql NVARCHAR(MAX) =
+                    N'CREATE DATABASE ' + QUOTENAME(@db) + N' COLLATE Vietnamese_CI_AS';
+                EXEC(@sql);
+            END";
+            cmd.Parameters.AddWithValue("@db", dbName);
+            cmd.ExecuteNonQuery();
+        }
+
+        // Bước 2: nối vào FlashcardsDb, chưa có bảng Users thì tạo bảng + dữ liệu mẫu
+        using var conn = new SqlConnection(ConnectionString);
+        conn.Open();
+
+        using (var check = conn.CreateCommand())
+        {
+            check.CommandText = "SELECT OBJECT_ID(N'dbo.Users', N'U')";
+            var exists = check.ExecuteScalar();
+            if (exists is not null && exists is not DBNull) return;   // đã có rồi thì thôi
+        }
+
+        using var tx = conn.BeginTransaction();
+        using (var create = conn.CreateCommand())
+        {
+            create.Transaction = tx;
+            create.CommandText = CreateTablesSql;
+            create.ExecuteNonQuery();
+        }
+        using (var seed = conn.CreateCommand())
+        {
+            seed.Transaction = tx;
+            seed.CommandText = SampleDataSql;
+            seed.ExecuteNonQuery();
+        }
+        tx.Commit();
     }
 
     // Câu lệnh tạo 2 bảng, đúng theo docs/03. Muốn đổi cột thì sửa docs/03 trước, rồi báo cả nhóm.
