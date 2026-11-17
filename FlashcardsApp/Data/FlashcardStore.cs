@@ -18,9 +18,9 @@ public static class FlashcardStore
         {
             return new List<Flashcard>
             {
-                new() { Word = "make a decision", Meaning = "đưa ra quyết định", Category = "CỤM TỪ",
+                new() { Word = "make a decision", Meaning = "đưa ra quyết định",
                     Pronunciation = "/meɪk ə dɪˈsɪʒən/", Example = "I need to make a decision today.",
-                    ExampleTranslation = "Tôi cần đưa ra quyết định hôm nay.", CommonMistake = "do a decision",
+                    ExampleTranslation = "Tôi cần đưa ra quyết định hôm nay.",
                     MemoryNote = "Dùng make với decision." },
                 new() { Word = "curious", Meaning = "tò mò, ham tìm hiểu", Pronunciation = "/ˈkjʊəriəs/",
                     Example = "She is curious about the world.", ExampleTranslation = "Cô ấy tò mò về thế giới." },
@@ -64,20 +64,20 @@ public static class FlashcardStore
             throw new InvalidDataException("Thẻ cần có từ, nghĩa và mức đánh giá hợp lệ từ 0 đến 4.");
     }
 
-    // ===== Đọc từ file SQLite (#4) =====
+    // ===== Đọc từ SQL Server (#4) =====
     // Load, Save, Validate ở trên là của bản chạy thử (đọc file JSON). Khi 2 hàm dưới đây chạy được thì:
     //   1. đổi chỗ gọi Load trong MainWindow.CountMistakes và OverviewScreen.ShowNumbers sang GetAll()
     //   2. xóa Load, Save, Validate, DefaultPath
-    //   3. sửa Flashcard.cs theo docs/03: bỏ NextReviewAt, CommonMistake; IsLearned và Category thành thuộc tính tính sẵn
-    //      (xóa luôn các dòng gán IsLearned, Category, CommonMistake ở trên và trong AddCardDialog.cs để app build được)
 
-    // Lấy tất cả từ. Ai gọi: màn Học, Tổng quan, Gõ đáp án, Ghép cặp.
+    // Lấy tất cả từ người đang đăng nhập được thấy (docs/03, mục "Ai thấy thư mục nào"), kèm mức nhớ của người đó.
+    // Ai gọi: màn Học, Tổng quan, Gõ đáp án, Ghép cặp.
     public static List<Flashcard> GetAll()
     {
         var cards = new List<Flashcard>();
 
-        // TODO (#4): chép code ở docs/03 mục "Đọc dữ liệu (ví dụ FlashcardStore.GetAll)":
-        // mở kết nối bằng Database.ConnectionString, SELECT đủ 11 cột, mỗi dòng đọc được thì cards.Add(new Flashcard { ... })
+        // TODO (#4): giống GetByFolder ở docs/03 mục "Đọc từ kèm mức nhớ" (Flashcards LEFT JOIN CardProgress),
+        // đổi WHERE thành các thư mục người đó được thấy: thư mục của mình, bài đã mở (CourseStore.GetUnlockedFolderIds),
+        // thư mục theo mùa đang diễn ra
 
         return cards;
     }
@@ -87,8 +87,8 @@ public static class FlashcardStore
     {
         var cards = new List<Flashcard>();
 
-        // TODO (#4): giống GetAll, thêm "WHERE FolderId = @folderId" vào cuối câu SELECT và truyền giá trị bằng
-        //     cmd.Parameters.AddWithValue("@folderId", folderId);
+        // TODO (#4): chép code ở docs/03 mục "Đọc từ kèm mức nhớ (ví dụ FlashcardStore.GetByFolder)".
+        // Truyền giá trị bằng cmd.Parameters.AddWithValue("@folderId", folderId);
         // (không cộng chuỗi vào câu SQL, xem docs/02 quy tắc 1)
 
         return cards;
@@ -112,10 +112,11 @@ public static class FlashcardStore
         // TODO (#7)
     }
 
-    // true nếu đã có từ trùng cả từ lẫn nghĩa, không phân biệt hoa thường (so bằng C#, không so trong SQL).
+    // true nếu thư mục của người đang đăng nhập đã có từ trùng cả từ lẫn nghĩa. SQL Server so không phân biệt hoa thường, nên so thẳng trong câu SQL.
     public static bool Exists(string word, string meaning)
     {
-        // TODO (#7): return GetAll().Any(card => card.Word.Equals(word, StringComparison.OrdinalIgnoreCase) && ...);
+        // TODO (#7): SELECT COUNT(*) FROM Flashcards f JOIN Folders d ON d.Id = f.FolderId
+        //     WHERE d.OwnerId = @userId AND f.Word = @word AND f.Meaning = @meaning
         return false;
     }
 }
