@@ -11,7 +11,7 @@ namespace FlashcardsApp;
 
 public static class FlashcardStore
 {
-        // ===== Đọc từ file SQl (#4) =====
+    // ===== Đọc từ file SQl (#4) =====
     // Load, Save, Validate ở trên là của bản chạy thử (đọc file JSON). Khi 2 hàm dưới đây chạy được thì:
     //   1. đổi chỗ gọi Load trong MainWindow.CountMistakes và OverviewScreen.ShowNumbers sang GetAll()
     //   2. xóa Load, Save, Validate, DefaultPath
@@ -19,11 +19,16 @@ public static class FlashcardStore
     //      (xóa luôn các dòng gán IsLearned, Category, CommonMistake ở trên và trong AddCardDialog.cs để app build được)
 
     private const string SelectSql = """
-                                    SELECT f.Id, f.FolderId, f.Word, f.Meaning, f.Pronunciation, f.Example, f.ExampleTranslation, f.MemoryNote,
-                                    ISNULL(p.LastRating, 0), ISNULL(p.WrongCount, 0), ISNULL(p.LastWrongAnswer, '')
-                                    FROM Flashcards f
-                                    LEFT JOIN CardProgress p ON p.CardId = f.Id AND p.UserId = @userId
-                                    """;
+    SELECT f.Id, f.FolderId, f.Word, f.Meaning,
+           f.Pronunciation, f.Example, f.ExampleTranslation, f.MemoryNote,
+           ISNULL(p.LastRating, 0),
+           ISNULL(p.WrongCount, 0),
+           ISNULL(p.LastWrongAnswer, '')
+    FROM Flashcards f
+    JOIN Folders fo ON fo.Id = f.FolderId
+    LEFT JOIN CardProgress p
+        ON p.CardId = f.Id AND p.UserId = @userId
+    """;
 
 
     // Lấy tất cả từ. Ai gọi: màn Học, Tổng quan, Gõ đáp án, Ghép cặp.
@@ -32,7 +37,17 @@ public static class FlashcardStore
         var cards = new List<Flashcard>();
 
         using var conn = new SqlConnection(Database.ConnectionString);
-        using var cmd = new SqlCommand(SelectSql + " ORDER BY f.Id", conn);
+        using var cmd = new SqlCommand(SelectSql + """
+        WHERE
+            fo.CourseId IS NOT NULL
+            OR (
+                fo.StartDate IS NOT NULL
+                AND fo.EndDate IS NOT NULL
+                AND CAST(GETDATE() AS DATE)
+                    BETWEEN fo.StartDate AND fo.EndDate
+            )
+        ORDER BY f.Id
+        """, conn);
         cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
 
         conn.Open();
