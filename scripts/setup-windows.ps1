@@ -61,7 +61,10 @@ try {
         12 { 'arm64' }
         default { throw 'Only Windows x64 and ARM64 are covered by this project setup.' }
     }
-    Write-Host "Windows $architecture; SDK target: .NET 10; database: SQLite file created by the app (nothing to install)."
+    Write-Host "Windows $architecture; SDK target: .NET 10; database: SQL Server Express (.\SQLEXPRESS), installed separately."
+    if (-not (Get-Service -Name 'MSSQL$SQLEXPRESS' -ErrorAction SilentlyContinue)) {
+        Write-Warning 'SQL Server Express (.\SQLEXPRESS) was not found. Install SQL Server 2022 Express (Basic) before pressing F5; see docs/01-bat-dau.md.'
+    }
 
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
         if ($Install) { Install-WingetPackage -Id 'Git.Git' }
@@ -104,7 +107,7 @@ try {
             Invoke-Checked -Command dotnet -Arguments @('build', $ProjectPath, '--no-restore')
         }
         finally { Pop-Location }
-        Write-Host 'Windows build passed. UI, SAPI and SQLite data still need runtime tests (press F5).'
+        Write-Host 'Windows build passed. UI, SAPI and SQL Server data still need runtime tests (press F5).'
     }
     else { Write-Host 'Build not requested. Use -Build to restore NuGet packages and build the existing project.' }
     Write-Host 'Checks completed. No Git configuration, commit, pull, push, firewall or data file was changed.'

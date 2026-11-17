@@ -15,8 +15,6 @@ public static class FlashcardStore
     // Load, Save, Validate ở trên là của bản chạy thử (đọc file JSON). Khi 2 hàm dưới đây chạy được thì:
     //   1. đổi chỗ gọi Load trong MainWindow.CountMistakes và OverviewScreen.ShowNumbers sang GetAll()
     //   2. xóa Load, Save, Validate, DefaultPath
-    //   3. sửa Flashcard.cs theo docs/03: bỏ NextReviewAt, CommonMistake; IsLearned và Category thành thuộc tính tính sẵn
-    //      (xóa luôn các dòng gán IsLearned, Category, CommonMistake ở trên và trong AddCardDialog.cs để app build được)
 
     private const string SelectSql = """
     SELECT f.Id, f.FolderId, f.Word, f.Meaning,
@@ -122,10 +120,11 @@ public static class FlashcardStore
         // TODO (#7)
     }
 
-    // true nếu đã có từ trùng cả từ lẫn nghĩa, không phân biệt hoa thường (so bằng C#, không so trong SQL).
+    // true nếu thư mục của người đang đăng nhập đã có từ trùng cả từ lẫn nghĩa. SQL Server so không phân biệt hoa thường, nên so thẳng trong câu SQL.
     public static bool Exists(string word, string meaning)
     {
-        // TODO (#7): return GetAll().Any(card => card.Word.Equals(word, StringComparison.OrdinalIgnoreCase) && ...);
+        // TODO (#7): SELECT COUNT(*) FROM Flashcards f JOIN Folders d ON d.Id = f.FolderId
+        //     WHERE d.OwnerId = @userId AND f.Word = @word AND f.Meaning = @meaning
         return false;
     }
 }

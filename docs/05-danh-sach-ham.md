@@ -12,14 +12,14 @@ Hàm `public` (màn khác hoặc lớp khác gọi tới) là bản thống nh�
 
 ## 1. Dữ liệu (`Data/`)
 
-Chỉ các lớp trong `Data/` được viết câu SQL. Hàm nào cũng có thể ném lỗi khi không đọc ghi được file `flashcards.db`; màn hình gọi hàm thì tự bắt lỗi và báo (xem [02 – Quy ước code](02-quy-uoc-code.md), quy tắc 3).
+Chỉ các lớp trong `Data/` được viết câu SQL. Hàm nào cũng có thể ném lỗi khi không nối được tới SQL Server; màn hình gọi hàm thì tự bắt lỗi và báo (xem [02 – Quy ước code](02-quy-uoc-code.md), quy tắc 3).
 
 ### `Database` (`Data/Database.cs`)
 
 | Hàm | Trả về | Làm gì | Ai gọi | Issue | Tình trạng |
 |---|---|---|---|---|---|
-| `EnsureCreated()` | `void` | Chưa có file `flashcards.db` thì tạo file, tạo 2 bảng, thêm 3 thư mục và 30 từ mẫu | `Program.cs`, trước `Application.Run` | [#4](https://github.com/VuxSussy/IT008_Project/issues/4) | Có khung |
-| `ConnectionString` (thuộc tính) | `string` | Chuỗi kết nối tới `flashcards.db`, bật kiểm tra thư mục tồn tại | Mọi lớp `...Store` | [#4](https://github.com/VuxSussy/IT008_Project/issues/4) | Đã có |
+| `EnsureCreated()` | `void` | Chưa có cơ sở dữ liệu `Flashcards` thì tạo, tạo 9 bảng, thêm 3 tài khoản, 1 khóa học và 30 từ mẫu | `Program.cs`, trước hộp đăng nhập | [#4](https://github.com/VuxSussy/IT008_Project/issues/4) | Có khung |
+| `ConnectionString` (thuộc tính) | `string` | Chuỗi kết nối tới `Flashcards` trên `.\SQLEXPRESS` | Mọi lớp `...Store` | [#4](https://github.com/VuxSussy/IT008_Project/issues/4) | Đã có |
 
 ### `FlashcardStore` (`Data/FlashcardStore.cs`)
 

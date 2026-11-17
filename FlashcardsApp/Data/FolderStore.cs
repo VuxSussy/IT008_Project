@@ -5,20 +5,15 @@ namespace FlashcardsApp;
 // Đọc, ghi bảng Folders. Mọi câu SQL về thư mục nằm ở đây. Xem docs/03-database.md.
 public static class FolderStore
 {
-    private const string SelectSql = """
-                                    SELECT f.Id, f.Name, f.OwnerId, f.IsDefault, f.CourseId, f.LessonOrder, f.StartDate, f.EndDate,
-                                    ISNULL(p.LastRating, 0), ISNULL(p.WrongCount, 0), ISNULL(p.LastWrongAnswer, '')
-                                    FROM Folder f
-                                    LEFT JOIN CardProgress p ON p.CardId = f.Id AND p.UserId = @userId
-                                    """;
-    // Lấy tất cả thư mục, xếp theo Id (thư mục số 1 "Chưa phân loại" đứng đầu).
+    // Các thư mục người đang đăng nhập được thấy (docs/03, mục "Ai thấy thư mục nào"), "Chưa phân loại" của mình đứng đầu.
     // Ai gọi: màn Thư mục, màn Tổng quan (đếm số thư mục), ô chọn thư mục ở màn Học.
     public static List<Folder> GetAll()
     {
 
-        // TODO (#4): đọc bảng Folders, làm giống FlashcardStore.GetAll ở docs/03 mục "Đọc dữ liệu":
-        //     using var conn = new SqliteConnection(Database.ConnectionString);
-        //     using var cmd = new SqliteCommand("SELECT Id, Name FROM Folders ORDER BY Id", conn);
+        // TODO (#4): đọc bảng Folders, làm giống FlashcardStore.GetByFolder ở docs/03 mục "Đọc từ kèm mức nhớ".
+        // Câu dưới đây còn đọc hết mọi thư mục; thêm WHERE theo docs/03 và ORDER BY IsDefault DESC, Id:
+        //     using var conn = new SqlConnection(Database.ConnectionString);
+        //     using var cmd = new SqlCommand("SELECT Id, Name FROM Folders ORDER BY Id", conn);
         //     conn.Open();
         //     using var reader = cmd.ExecuteReader();
         //     while (reader.Read())

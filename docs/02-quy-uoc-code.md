@@ -39,13 +39,15 @@ Các hàm chưa viết đã có sẵn tên, tham số và chú thích `TODO (#s�
 | `Screens/` | Kéo thả giao diện, nhận cú bấm, kiểm tra ô nhập, gọi hàm trong `Data/`, hiện kết quả | Viết câu SQL; sửa control của màn khác |
 | `Dialogs/` | Hỏi người dùng một việc rồi đóng lại, trả kết quả qua thuộc tính | Tự lưu vào dữ liệu khi màn gọi nó chưa đồng ý |
 | `Controls/` | Nút, thẻ vẽ tay, màu và chữ dùng chung (`StudyTheme`) | Đọc hay ghi dữ liệu |
-| `Data/` | Lớp dữ liệu (`Flashcard`, `Folder`), mọi câu SQL, đọc ghi file `flashcards.db` | Gọi `MessageBox` hay đụng tới control trên màn hình |
+| `Data/` | Lớp dữ liệu (`Flashcard`, `Folder`), mọi câu SQL, đọc ghi cơ sở dữ liệu `Flashcards` trên SQL Server | Gọi `MessageBox` hay đụng tới control trên màn hình |
 
 Chiều gọi chỉ đi một hướng: **`MainWindow` → `Screens/` → `Dialogs/` → `Data/`**. `Data/` không biết gì về màn hình, nên ai cũng gọi được mà không sợ hỏng giao diện.
 
 Cần một hàm dữ liệu mới thì nhắn người làm phần dữ liệu kèm tên hàm mong muốn, ví dụ `FlashcardStore.CountLearned()`. Trong lúc chờ, dùng tạm vài từ viết sẵn trong code.
 
-`Data/Flashcard.cs` và `Data/FlashcardStore.cs` lấy từ bản chạy thử, hiện vẫn đọc file JSON. Thẻ 03 đổi `FlashcardStore` sang đọc SQLite (xem [03 – Cơ sở dữ liệu](03-database.md)).
+`Data/FlashcardStore.cs` vẫn giữ hàm `Load` đọc file JSON của bản chạy thử để các màn có từ mà hiện. Khi xong #4, các màn đổi sang `GetAll()` và xóa `Load`, `Save` (xem [03 – Database](03-database.md)).
+
+Người đang đăng nhập nằm ở `Session.CurrentUser`. Hàm trong `Data/` tự đọc `Session.CurrentUser.Id` khi cần, màn hình không phải truyền vào.
 
 ## 2. Các màn gọi nhau thế nào
 
@@ -77,13 +79,13 @@ Bên trong hộp thoại: kiểm tra ô nhập, gán kết quả vào thuộc t�
 
 ## 4. Ví dụ: thêm một từ
 
-**Dữ liệu** (`Data/FlashcardStore.cs`, đầu file có `using Microsoft.Data.Sqlite;`):
+**Dữ liệu** (`Data/FlashcardStore.cs`, đầu file có `using Microsoft.Data.SqlClient;`):
 
 ```csharp
 public static void Add(Flashcard card)
 {
-    using var conn = new SqliteConnection(Database.ConnectionString);
-    using var cmd = new SqliteCommand(
+    using var conn = new SqlConnection(Database.ConnectionString);
+    using var cmd = new SqlCommand(
         "INSERT INTO Flashcards (FolderId, Word, Meaning) VALUES (@folderId, @word, @meaning)", conn);
     cmd.Parameters.AddWithValue("@folderId", card.FolderId);
     cmd.Parameters.AddWithValue("@word", card.Word);
@@ -108,15 +110,15 @@ private void saveButton_Click(object sender, EventArgs e)
     }
     catch (Exception ex)
     {
-        MessageBox.Show("Không lưu được vào file dữ liệu. Hãy tắt app, mở lại rồi thử lần nữa.\n\n" + ex.Message);
+        MessageBox.Show("Không lưu được dữ liệu. Kiểm tra SQL Server Express đã chạy chưa rồi thử lần nữa.\n\n" + ex.Message);
     }
 }
 ```
 
 ## 5. Quy tắc
 
-1. **Câu SQL dùng `@ten`** cho chữ người dùng gõ, không cộng chuỗi. Gõ `don't` là câu cộng chuỗi hỏng ngay.
-2. **Luôn `using var`** trước `conn`, `cmd`, `reader` để kết nối tự đóng. Quên đóng thì file `flashcards.db` bị giữ, lần ghi sau báo lỗi "database is locked".
+1. **Câu SQL dùng `@ten`** cho chữ người dùng gõ, không cộng chuỗi. Gõ `don't` là câu cộng chuỗi hỏng ngay, và chữ có dấu không cần thêm `N` khi đi qua `@ten`.
+2. **Luôn `using var`** trước `conn`, `cmd`, `reader` để kết nối tự đóng. Quên đóng thì kết nối tới SQL Server bị giữ lại, mở nhiều lần sẽ hết chỗ và app báo lỗi.
 3. **Không để `catch { }` trống.** Màn hình bắt lỗi khi gọi `Data/` và báo bằng câu tiếng Việt dễ hiểu; `Data/` không tự hiện thông báo.
 4. **Xóa thì hỏi lại**: *"Bạn có chắc muốn xóa từ này?"*
 5. **Kéo thả bằng Designer**, không gõ tay vào `.Designer.cs`. Commit đủ các file của màn: `.cs`, `.Designer.cs`, `.resx` nếu có.
@@ -136,7 +138,7 @@ private void saveButton_Click(object sender, EventArgs e)
 | Lớp đọc ghi dữ liệu | Tên + `Store`, nằm trong `Data/` | `FolderStore`, `StudyStore` |
 | Nút, ô trên màn hình | Tên + loại, đặt ngay khi kéo vào | `saveButton`, `wordTextBox`, `folderListBox` |
 | Hàm sự kiện | Để Visual Studio tự tạo: tên control + `_` + sự kiện | `saveButton_Click`, `searchTextBox_TextChanged` |
-| Bảng, cột SQL | Bảng số nhiều, cột viết hoa chữ đầu | `Flashcards`, `FolderId` |
+| Bảng, cột SQL | Bảng số nhiều, cột viết hoa chữ đầu | `Flashcards`, `FolderId`, `CardProgress` |
 
 Đặt tên control trong ô **(Name)** ở cửa sổ Properties **trước** khi nhấp đúp tạo sự kiện. Đổi tên sau thì hàm sự kiện vẫn giữ tên cũ như `button1_Click`.
 
@@ -168,5 +170,6 @@ Màn hình thì ghi `SubType="UserControl"` thay cho `"Form"`.
 - [ ] F5 chạy được, đã thử cả lúc nhập đúng, nhập sai, để trống.
 - [ ] Màn hình mình sửa vẫn mở được trong Designer.
 - [ ] Không viết câu SQL ngoài `Data/`, không sửa file của màn khác.
+- [ ] Đã thử bằng cả tài khoản `admin` và `lan` nếu màn có chỗ khác nhau giữa Admin và User.
 - [ ] Đã bấm Ctrl+K, Ctrl+D để căn lại code.
 - [ ] `git status` không có `bin/`, `obj/`, `.vs/`, `.csproj.user`.
