@@ -1,104 +1,133 @@
 using Microsoft.Data.SqlClient;
-
-namespace FlashcardsApp;
-
-// Tạo file dữ liệu flashcards.db, tạo 2 bảng và 30 từ mẫu. Việc của #4, xem docs/03-database.md.
-// Các chỗ ghi "TODO (#4)" là phần còn phải viết. Trong Visual Studio mở View → Task List để thấy hết.
 public static class Database
 {
-    // File dữ liệu nằm cạnh file chạy của app: FlashcardsApp/bin/Debug/net10.0-windows/flashcards.db
-    // Mọi lớp ...Store dùng chuỗi này để mở kết nối:
-    //     using var conn = new SqliteConnection(Database.ConnectionString);
-    // Foreign Keys=True: không cho gán từ vào thư mục không tồn tại
+    // Máy nào đặt tên khác .\SQLEXPRESS thì sửa ở đây, nhưng đừng commit dòng đã sửa
+    const string Server = @".\SQLEXPRESS";
+
+    // Mọi lớp ...Store mở kết nối bằng chuỗi này
     public static string ConnectionString =>
-        Environment.GetEnvironmentVariable("FLASHCARDS_DB")
-        ?? @"Server=localhost\SQLEXPRESS;Database=FlashcardsDb;Trusted_Connection=True;TrustServerCertificate=True";
-    // Program.cs gọi hàm này một lần, trước khi mở cửa sổ chính.
-    // Đã có file thì thôi; chưa có thì tạo bảng và thêm dữ liệu mẫu.
+        $"Server={Server};Database=Flashcards;Trusted_Connection=True;TrustServerCertificate=True";
+
+    static string MasterConnectionString =>
+        $"Server={Server};Database=master;Trusted_Connection=True;TrustServerCertificate=True";
+
+    // Gọi một lần trong Program.cs, trước khi mở hộp đăng nhập
     public static void EnsureCreated()
     {
-        // Bước 1: nối vào master, chưa có FlashcardsDb thì tạo
-        var builder = new SqlConnectionStringBuilder(ConnectionString);
-        var dbName = builder.InitialCatalog;      // "FlashcardsDb"
-        builder.InitialCatalog = "master";
-
-        using (var master = new SqlConnection(builder.ConnectionString))
+        using (var master = new SqlConnection(MasterConnectionString))
         {
             master.Open();
-            using var cmd = master.CreateCommand();
-            cmd.CommandText = @"
-            IF DB_ID(@db) IS NULL
-            BEGIN
-                DECLARE @sql NVARCHAR(MAX) =
-                    N'CREATE DATABASE ' + QUOTENAME(@db) + N' COLLATE Vietnamese_CI_AS';
-                EXEC(@sql);
-            END";
-            cmd.Parameters.AddWithValue("@db", dbName);
-            cmd.ExecuteNonQuery();
-        }
-
-        // Bước 2: nối vào FlashcardsDb, chưa có bảng Users thì tạo bảng + dữ liệu mẫu
-        using var conn = new SqlConnection(ConnectionString);
-        conn.Open();
-
-        using (var check = conn.CreateCommand())
-        {
-            check.CommandText = "SELECT OBJECT_ID(N'dbo.Users', N'U')";
-            var exists = check.ExecuteScalar();
-            if (exists is not null && exists is not DBNull) return;   // đã có rồi thì thôi
-        }
-
-        using var tx = conn.BeginTransaction();
-        using (var create = conn.CreateCommand())
-        {
-            create.Transaction = tx;
-            create.CommandText = CreateTablesSql;
+            using var check = new SqlCommand("SELECT DB_ID('Flashcards')", master);
+            if (check.ExecuteScalar() is not DBNull) return; // đã có thì thôi
+            using var create = new SqlCommand("CREATE DATABASE Flashcards", master);
             create.ExecuteNonQuery();
         }
-        using (var seed = conn.CreateCommand())
-        {
-            seed.Transaction = tx;
-            seed.CommandText = SampleDataSql;
-            seed.ExecuteNonQuery();
-        }
-        tx.Commit();
+
+        using var conn = new SqlConnection(ConnectionString);
+        conn.Open();
+        using var cmd = new SqlCommand(CreateTablesSql + SampleDataSql, conn);
+        cmd.ExecuteNonQuery();
     }
 
-    // Câu lệnh tạo 2 bảng, đúng theo docs/03. Muốn đổi cột thì sửa docs/03 trước, rồi báo cả nhóm.
-    // Chuỗi nhiều dòng viết giữa hai dấu """
-    private const string CreateTablesSql = """
+    const string CreateTablesSql = """
+        CREATE TABLE Users (
+            Id           INT IDENTITY PRIMARY KEY,           -- máy tự đánh số
+            Username     NVARCHAR(50)  NOT NULL UNIQUE,
+            PasswordHash VARCHAR(64)   NOT NULL,
+            Role         VARCHAR(10)   NOT NULL DEFAULT 'User' CHECK (Role IN ('Admin', 'User')),
+            Rating       INT           NOT NULL DEFAULT 0,
+            CreatedAt    DATETIME2     NOT NULL DEFAULT SYSDATETIME()
+        );
+
+        CREATE TABLE Courses (
+            Id          INT IDENTITY PRIMARY KEY,
+            Title       NVARCHAR(100) NOT NULL,
+            Description NVARCHAR(500) NOT NULL DEFAULT ''
+        );
+
         CREATE TABLE Folders (
-            Id    INTEGER PRIMARY KEY AUTOINCREMENT,  -- máy tự đánh số 1, 2, 3...
-            Name  TEXT NOT NULL UNIQUE                -- bắt buộc, không trùng
+            Id          INT IDENTITY PRIMARY KEY,
+            Name        NVARCHAR(100) NOT NULL,
+            OwnerId     INT NOT NULL REFERENCES Users(Id),
+            IsDefault   BIT NOT NULL DEFAULT 0,
+            CourseId    INT NULL REFERENCES Courses(Id),
+            LessonOrder INT NULL,
+            StartDate   DATE NULL,
+            EndDate     DATE NULL,
+            UNIQUE (OwnerId, Name)                            -- một người không có 2 thư mục trùng tên
         );
 
         CREATE TABLE Flashcards (
-            Id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-            FolderId            INTEGER NOT NULL DEFAULT 1 REFERENCES Folders(Id),
-            Word                TEXT NOT NULL,
-            Meaning             TEXT NOT NULL,
-            Pronunciation       TEXT NOT NULL DEFAULT '',  -- '' = để trống
-            Example             TEXT NOT NULL DEFAULT '',
-            ExampleTranslation  TEXT NOT NULL DEFAULT '',
-            MemoryNote          TEXT NOT NULL DEFAULT '',
-            LastRating          INTEGER NOT NULL DEFAULT 0,
-            WrongCount          INTEGER NOT NULL DEFAULT 0,
-            LastWrongAnswer     TEXT NOT NULL DEFAULT ''
+            Id                 INT IDENTITY PRIMARY KEY,
+            FolderId           INT NOT NULL REFERENCES Folders(Id),
+            Word               NVARCHAR(100) NOT NULL,
+            Meaning            NVARCHAR(255) NOT NULL,
+            Pronunciation      NVARCHAR(100) NOT NULL DEFAULT '',
+            Example            NVARCHAR(500) NOT NULL DEFAULT '',
+            ExampleTranslation NVARCHAR(500) NOT NULL DEFAULT '',
+            MemoryNote         NVARCHAR(500) NOT NULL DEFAULT ''
         );
 
-        INSERT INTO Folders (Name) VALUES ('Chưa phân loại');
+        CREATE TABLE CardProgress (
+            UserId          INT NOT NULL REFERENCES Users(Id),
+            CardId          INT NOT NULL REFERENCES Flashcards(Id) ON DELETE CASCADE, -- xóa từ thì xóa luôn mức nhớ
+            LastRating      INT NOT NULL,
+            WrongCount      INT NOT NULL DEFAULT 0,
+            LastWrongAnswer NVARCHAR(100) NOT NULL DEFAULT '',
+            PRIMARY KEY (UserId, CardId)
+        );
+
+        CREATE TABLE StudyDays (
+            UserId INT  NOT NULL REFERENCES Users(Id),
+            Day    DATE NOT NULL,
+            PRIMARY KEY (UserId, Day)
+        );
+
+        CREATE TABLE DailyChallenges (
+            Day      DATE PRIMARY KEY,
+            FolderId INT NOT NULL REFERENCES Folders(Id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE ChallengeResults (
+            UserId  INT  NOT NULL REFERENCES Users(Id),
+            Day     DATE NOT NULL,
+            Score   INT  NOT NULL DEFAULT 0,
+            Total   INT  NOT NULL,
+            Seconds INT  NOT NULL DEFAULT 0,
+            PRIMARY KEY (UserId, Day)                         -- mỗi người mỗi ngày một lượt
+        );
+
+        CREATE TABLE RushResults (
+            Id       INT IDENTITY PRIMARY KEY,
+            UserId   INT NOT NULL REFERENCES Users(Id),
+            Score    INT NOT NULL,
+            PlayedAt DATETIME2 NOT NULL DEFAULT SYSDATETIME()
+        );
         """;
 
-    // 3 thư mục mẫu (số 2, 3, 4) và 30 từ mẫu
-    // TODO (#4): điền đủ 30 từ, lấy từ file JSON của bản chạy thử. Nhớ:
-    //   - chữ có dấu nháy gõ 2 lần: 'don''t'
-    //   - cột không có thì ghi '' (chuỗi rỗng), không ghi NULL
-    //   - dòng cuối kết thúc bằng dấu chấm phẩy, các dòng trước bằng dấu phẩy
-    private const string SampleDataSql = """
-        INSERT INTO Folders (Name) VALUES ('Thư mục mẫu 1'), ('Thư mục mẫu 2'), ('Thư mục mẫu 3');
+    // 3 tài khoản mẫu, mật khẩu đều là 123456:
+    //   Id 1 admin (Admin), Id 2 lan (User), Id 3 minh (User)
+    // Mã hóa bằng HASHBYTES cho khớp với UserStore.HashPassword
+    const string SampleDataSql = """
+        INSERT INTO Users (Username, PasswordHash, Role) VALUES
+            ('admin', CONVERT(VARCHAR(64), HASHBYTES('SHA2_256', 'admin:123456'), 2), 'Admin'),
+            ('lan',   CONVERT(VARCHAR(64), HASHBYTES('SHA2_256', 'lan:123456'),   2), 'User'),
+            ('minh',  CONVERT(VARCHAR(64), HASHBYTES('SHA2_256', 'minh:123456'),  2), 'User');
+
+        -- Mỗi người một thư mục "Chưa phân loại"
+        INSERT INTO Folders (Name, OwnerId, IsDefault) VALUES
+            (N'Chưa phân loại', 1, 1), (N'Chưa phân loại', 2, 1), (N'Chưa phân loại', 3, 1);
+
+        -- Khóa học mẫu: 3 bài là 3 thư mục của admin (Id 4, 5, 6)
+        INSERT INTO Courses (Title, Description) VALUES (N'Tiếng Anh giao tiếp', N'Từ vựng hằng ngày');
+        INSERT INTO Folders (Name, OwnerId, CourseId, LessonOrder) VALUES
+            (N'Bài 1 · Daily life', 1, 1, 1),
+            (N'Bài 2 · At work',    1, 1, 2),
+            (N'Bài 3 · Travel',     1, 1, 3);
 
         INSERT INTO Flashcards (FolderId, Word, Meaning, Pronunciation, Example, ExampleTranslation) VALUES
-            (2, 'curious', 'tò mò', '/ˈkjʊəriəs/', 'She is curious about everything.', 'Cô ấy tò mò về mọi thứ.'),
-            (2, 'commute', 'đi làm hằng ngày', '/kəˈmjuːt/', '', '');
+            (4, N'curious', N'tò mò', N'/ˈkjʊəriəs/', N'She is curious about everything.', N'Cô ấy tò mò về mọi thứ.'),
+            (4, N'commute', N'đi làm hằng ngày', N'/kəˈmjuːt/', N'', N'');
+            -- ... thêm cho đủ 30 từ, mỗi bài 10 từ
         """;
 }
