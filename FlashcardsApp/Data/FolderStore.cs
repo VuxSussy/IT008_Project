@@ -5,11 +5,16 @@ namespace FlashcardsApp;
 // Đọc, ghi bảng Folders. Mọi câu SQL về thư mục nằm ở đây. Xem docs/03-database.md.
 public static class FolderStore
 {
+    private const string SelectSql = """
+                                    SELECT f.Id, f.Name, f.OwnerId, f.IsDefault, f.CourseId, f.LessonOrder, f.StartDate, f.EndDate,
+                                    ISNULL(p.LastRating, 0), ISNULL(p.WrongCount, 0), ISNULL(p.LastWrongAnswer, '')
+                                    FROM Folder f
+                                    LEFT JOIN CardProgress p ON p.CardId = f.Id AND p.UserId = @userId
+                                    """;
     // Lấy tất cả thư mục, xếp theo Id (thư mục số 1 "Chưa phân loại" đứng đầu).
     // Ai gọi: màn Thư mục, màn Tổng quan (đếm số thư mục), ô chọn thư mục ở màn Học.
     public static List<Folder> GetAll()
     {
-        var folders = new List<Folder>();
 
         // TODO (#4): đọc bảng Folders, làm giống FlashcardStore.GetAll ở docs/03 mục "Đọc dữ liệu":
         //     using var conn = new SqliteConnection(Database.ConnectionString);
@@ -20,7 +25,31 @@ public static class FolderStore
         //     {
         //         folders.Add(new Folder { Id = reader.GetInt32(0), Name = reader.GetString(1) });
         //     }
+        var folders = new List<Folder>();
 
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+                                    SELECT f.Id, f.Name, f.OwnerId, f.IsDefault, f.CourseId, f.LessonOrder, f.StartDate, f.EndDate,
+                                    FROM Folders f
+                                    ORDER BY f.Id
+                                    """, conn);
+        conn.Open();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            folders.Add(new Folder
+            {
+                Id = reader.GetInt32(0),
+                Name = reader.GetString(1),
+                OwnerId = reader.GetInt32(2),
+                IsDefault = reader.GetBoolean(3),
+
+                CourseId = reader.IsDBNull(4) ? null : reader.GetInt32(4),
+                LessonOrder = reader.IsDBNull(5) ? null : reader.GetInt32(5),
+                StartDate = reader.IsDBNull(6) ? null : reader.GetDateTime(6),
+                EndDate = reader.IsDBNull(7) ? null : reader.GetDateTime(7)
+            });
+        }
         return folders;
     }
 
@@ -31,6 +60,31 @@ public static class FolderStore
 
         // TODO (#4): WHERE OwnerId = @userId ORDER BY IsDefault DESC, Id
 
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+                                    SELECT f.Id, f.Name, f.OwnerId, f.IsDefault, f.CourseId, f.LessonOrder, f.StartDate, f.EndDate,
+                                    FROM Folders f
+                                    WHERE f.OwnerId = @userId
+                                    ORDER BY f.Id
+                                    """, conn);
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+        conn.Open();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            folders.Add(new Folder
+            {
+                Id = reader.GetInt32(0),
+                Name = reader.GetString(1),
+                OwnerId = reader.GetInt32(2),
+                IsDefault = reader.GetBoolean(3),
+
+                CourseId = reader.IsDBNull(4) ? null : reader.GetInt32(4),
+                LessonOrder = reader.IsDBNull(5) ? null : reader.GetInt32(5),
+                StartDate = reader.IsDBNull(6) ? null : reader.GetDateTime(6),
+                EndDate = reader.IsDBNull(7) ? null : reader.GetDateTime(7)
+            });
+        }
         return folders;
     }
 
