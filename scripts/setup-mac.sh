@@ -10,7 +10,7 @@ Usage: bash scripts/setup-mac.sh [options]
   --cross-build               Restore/build Windows target; cannot run UI/Designer
   --project PATH              Existing .csproj (relative paths are repository-relative)
   --help                      Show help
-No database is needed (the app creates its own SQLite file). No Windows VM or paid software is installed.
+The app needs SQL Server Express, which runs only on Windows; nothing database-related is installed here. No Windows VM or paid software is installed.
 HELP
 }
 
@@ -111,7 +111,7 @@ elif [ "$cross_build" = 1 ]; then
         dotnet restore "$project" -p:EnableWindowsTargeting=true
         dotnet build "$project" --no-restore -p:EnableWindowsTargeting=true
     )
-    printf 'Cross-build passed. It does NOT verify Windows runtime, Designer, SAPI or SQLite data.\n'
+    printf 'Cross-build passed. It does NOT verify Windows runtime, Designer, SAPI or SQL Server data.\n'
 else
     printf 'Build not requested. Use --cross-build for compile-only checks.\n'
 fi

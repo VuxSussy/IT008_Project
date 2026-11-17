@@ -1,69 +1,32 @@
-using Microsoft.Data.Sqlite;
+using Microsoft.Data.SqlClient;
 
 namespace FlashcardsApp;
 
-// Tạo file dữ liệu flashcards.db, tạo 2 bảng và 30 từ mẫu. Việc của #4, xem docs/03-database.md.
+// Tạo cơ sở dữ liệu Flashcards trên SQL Server Express của máy, 9 bảng và dữ liệu mẫu. Việc của #4.
+// Bảng, cột, khóa chính, khóa ngoại: xem docs/03-database.md và ảnh docs/assets/data/data.png.
 // Các chỗ ghi "TODO (#4)" là phần còn phải viết. Trong Visual Studio mở View → Task List để thấy hết.
 public static class Database
 {
-    // File dữ liệu nằm cạnh file chạy của app: FlashcardsApp/bin/Debug/net10.0-windows/flashcards.db
-    private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "flashcards.db");
+    // Mọi lớp ...Store mở kết nối bằng chuỗi này:
+    //     using var conn = new SqlConnection(Database.ConnectionString);
+    // TODO (#4): trả về chuỗi kết nối tới cơ sở dữ liệu Flashcards trên máy chủ .\SQLEXPRESS,
+    // đăng nhập bằng tài khoản Windows. Máy nào đặt tên máy chủ khác thì sửa trên máy mình, đừng commit.
+    public static string ConnectionString => "";
 
-    // Mọi lớp ...Store dùng chuỗi này để mở kết nối:
-    //     using var conn = new SqliteConnection(Database.ConnectionString);
-    // Foreign Keys=True: không cho gán từ vào thư mục không tồn tại
-    public static string ConnectionString => $"Data Source={FilePath};Foreign Keys=True";
-
-    // Program.cs gọi hàm này một lần, trước khi mở cửa sổ chính.
-    // Đã có file thì thôi; chưa có thì tạo bảng và thêm dữ liệu mẫu.
+    // Program.cs gọi hàm này một lần, trước khi mở hộp đăng nhập.
     public static void EnsureCreated()
     {
-        if (File.Exists(FilePath)) return;
-
-        // TODO (#4): mở kết nối rồi chạy CreateTablesSql + SampleDataSql (code mẫu ở docs/03, mục "Tạo bảng và 30 từ mẫu"):
-        //     using var conn = new SqliteConnection(ConnectionString);
-        //     conn.Open();
-        //     using var cmd = conn.CreateCommand();
-        //     cmd.CommandText = CreateTablesSql + SampleDataSql;
-        //     cmd.ExecuteNonQuery();
-        // Viết xong thì thử: xóa file flashcards.db, bấm F5, app phải tự tạo lại file.
+        // TODO (#4):
+        //   1. Nối vào master (cơ sở dữ liệu có sẵn của SQL Server), xem đã có Flashcards chưa. Có rồi thì thôi.
+        //   2. Chưa có thì tạo cơ sở dữ liệu Flashcards.
+        //   3. Tạo 9 bảng đúng như docs/03: Users, Courses, Folders, Flashcards, CardProgress, StudyDays,
+        //      DailyChallenges, ChallengeResults, RushResults (đủ khóa chính, khóa ngoại, UNIQUE, ON DELETE CASCADE).
+        //   4. Thêm dữ liệu mẫu:
+        //      - 3 tài khoản admin (Admin), lan, minh (User), mật khẩu đều là 123456, mã hóa giống UserStore.HashPassword
+        //      - mỗi tài khoản một thư mục "Chưa phân loại" (IsDefault = 1)
+        //      - 1 khóa học có 3 bài (3 thư mục của admin), mỗi bài 10 từ, lấy từ file JSON của bản chạy thử
+        //   Câu lệnh SQL viết thẳng trong file này, không tạo file .sql riêng.
+        //   Chữ có dấu phải có N đứng trước: N'tò mò'.
+        // Viết xong thì thử: xóa Flashcards trong SSMS, bấm F5, app phải tự tạo lại.
     }
-
-    // Câu lệnh tạo 2 bảng, đúng theo docs/03. Muốn đổi cột thì sửa docs/03 trước, rồi báo cả nhóm.
-    // Chuỗi nhiều dòng viết giữa hai dấu """
-    private const string CreateTablesSql = """
-        CREATE TABLE Folders (
-            Id    INTEGER PRIMARY KEY AUTOINCREMENT,  -- máy tự đánh số 1, 2, 3...
-            Name  TEXT NOT NULL UNIQUE                -- bắt buộc, không trùng
-        );
-
-        CREATE TABLE Flashcards (
-            Id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-            FolderId            INTEGER NOT NULL DEFAULT 1 REFERENCES Folders(Id),
-            Word                TEXT NOT NULL,
-            Meaning             TEXT NOT NULL,
-            Pronunciation       TEXT NOT NULL DEFAULT '',  -- '' = để trống
-            Example             TEXT NOT NULL DEFAULT '',
-            ExampleTranslation  TEXT NOT NULL DEFAULT '',
-            MemoryNote          TEXT NOT NULL DEFAULT '',
-            LastRating          INTEGER NOT NULL DEFAULT 0,
-            WrongCount          INTEGER NOT NULL DEFAULT 0,
-            LastWrongAnswer     TEXT NOT NULL DEFAULT ''
-        );
-
-        INSERT INTO Folders (Name) VALUES ('Chưa phân loại');
-        """;
-
-    // 3 thư mục mẫu (số 2, 3, 4) và 30 từ mẫu
-    // TODO (#4): điền đủ 30 từ, lấy từ file JSON của bản chạy thử. Nhớ:
-    //   - chữ có dấu nháy gõ 2 lần: 'don''t'
-    //   - cột không có thì ghi '' (chuỗi rỗng), không ghi NULL
-    //   - dòng cuối kết thúc bằng dấu chấm phẩy, các dòng trước bằng dấu phẩy
-    private const string SampleDataSql = """
-        INSERT INTO Folders (Name) VALUES ('Thư mục mẫu 1'), ('Thư mục mẫu 2'), ('Thư mục mẫu 3');
-
-        INSERT INTO Flashcards (FolderId, Word, Meaning, Pronunciation, Example, ExampleTranslation) VALUES
-            (2, 'curious', 'tò mò', '/ˈkjʊəriəs/', 'She is curious about everything.', 'Cô ấy tò mò về mọi thứ.'),
-            (2, 'commute', 'đi làm hằng ngày', '/kəˈmjuːt/', '', '');
-        """;
 }
