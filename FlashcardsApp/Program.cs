@@ -1,3 +1,5 @@
+using Microsoft.Data.SqlClient;
+
 namespace FlashcardsApp;
 
 // Chỗ app bắt đầu chạy
@@ -10,8 +12,14 @@ internal static class Program
         ApplicationConfiguration.Initialize();
 
         // Lần đầu mở app: tạo file flashcards.db và 30 từ mẫu (#4)
-        Database.EnsureCreated();
-
+        try
+        {
+            Database.EnsureCreated();
+        }
+        catch (SqlException sqlex)
+        {
+            MessageBox.Show("Chưa kết nối được SQL Server. Xem docs/01, mục Cài SQL Server.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
         // TODO (#36): bỏ dòng gán tạm dưới đây, mở hộp đăng nhập trước; bấm Thoát thì tắt app:
         //     using (var login = new LoginDialog())
         //     {

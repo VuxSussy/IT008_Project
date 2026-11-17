@@ -29,9 +29,9 @@ public static class FolderStore
 
         using var conn = new SqlConnection(Database.ConnectionString);
         using var cmd = new SqlCommand("""
-                                    SELECT f.Id, f.Name, f.OwnerId, f.IsDefault, f.CourseId, f.LessonOrder, f.StartDate, f.EndDate,
-                                    FROM Folders f
-                                    ORDER BY f.Id
+                                    SELECT Id, Name, OwnerId, IsDefault, CourseId, LessonOrder, StartDate, EndDate
+                                    FROM Folders 
+                                    ORDER BY Id
                                     """, conn);
         conn.Open();
         using var reader = cmd.ExecuteReader();
@@ -62,10 +62,10 @@ public static class FolderStore
 
         using var conn = new SqlConnection(Database.ConnectionString);
         using var cmd = new SqlCommand("""
-                                    SELECT f.Id, f.Name, f.OwnerId, f.IsDefault, f.CourseId, f.LessonOrder, f.StartDate, f.EndDate,
-                                    FROM Folders f
-                                    WHERE f.OwnerId = @userId
-                                    ORDER BY f.Id
+                                    SELECT Id, Name, OwnerId, IsDefault, CourseId, LessonOrder, StartDate, EndDate
+                                    FROM Folders 
+                                    WHERE OwnerId = @userId
+                                    ORDER BY IsDefault DESC, Id
                                     """, conn);
         cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
         conn.Open();
