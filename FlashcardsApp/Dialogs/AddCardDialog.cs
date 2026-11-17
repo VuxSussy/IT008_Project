@@ -52,7 +52,6 @@ public partial class AddCardDialog : Form
             Example = exampleTextBox.Text.Trim(),
             ExampleTranslation = translationTextBox.Text.Trim(),
             MemoryNote = memoryNoteTextBox.Text.Trim(),
-            Category = word.Contains(' ') ? "CỤM TỪ" : "TỪ VỰNG" // có dấu cách là cụm từ
         };
 
         // Đặt DialogResult thì hộp thoại tự đóng, ShowDialog() trả về OK
