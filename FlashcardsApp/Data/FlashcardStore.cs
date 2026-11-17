@@ -11,136 +11,30 @@ namespace FlashcardsApp;
 
 public static class FlashcardStore
 {
-    public static string DefaultPath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "FlashcardsApp", "database.db");
-
-    private static SqlConnection Open(string path)
-    {
-        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
-        var conn = new SqlConnection($"Data Source={path};Mode=ReadWriteCreate");
-        conn.Open(); ;
-        return conn;
-    }
-    private static void EnsureDatabase(SqlConnection conn)
-    {
-        using (var create = conn.CreateCommand())
-        {
-            create.CommandText = SeedData.CreateTable;
-            create.ExecuteNonQuery();
-        }
-
-        using var count = conn.CreateCommand();
-        count.CommandText = "SELECT COUNT(*) FROM Flashcards";
-        var row = (long)count.ExecuteScalar()!;
-
-        if (row == 0)
-        {
-            using var insert = conn.CreateCommand();
-            insert.CommandText = SeedData.InsertCards;
-            insert.ExecuteNonQuery();
-        }
-    }
-    public static List<Flashcard> Load(string path)
-    {
-        try
-        {
-            using var conn = Open(path);
-            EnsureDatabase(conn);
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = @"SELECT Word, Meaning, Example, IsLearned, 
-                                        Category, Pronunciation, ExampleTranslation, 
-                                        MemoryNote, CommonMistake, LastRating, NextReviewAt
-                                FROM Flashcards
-                                ORDER BY Id ASC";
-            using var r = cmd.ExecuteReader();
-            var cards = new List<Flashcard>();
-            while (r.Read())
-            {
-                cards.Add(new Flashcard
-                {
-                    Word = r.GetString(0),
-                    Meaning = r.GetString(1),
-                    Example = r.GetString(2),
-                    IsLearned = r.GetInt32(3) == 1 ? true : false,
-                    Category = r.GetString(4),
-                    Pronunciation = r.GetString(5),
-                    ExampleTranslation = r.GetString(6),
-                    MemoryNote = r.GetString(7),
-                    CommonMistake = r.GetString(8),
-                    LastRating = r.GetInt32(9),
-                    NextReviewAt = r.IsDBNull(10) ? null : DateTimeOffset.Parse(r.GetString(10), CultureInfo.InvariantCulture)
-                });
-            }
-            return cards;
-        }
-        catch (SqlException ex)
-        {
-            throw new IOException(ex.Message, ex);
-        }
-
-    }
-
-    public static void Save(string path, List<Flashcard> cards)
-    {
-        try
-        {
-            using var conn = Open(path);
-            using var tx = conn.BeginTransaction();
-            foreach (var c in cards)
-            {
-                using var cmd = conn.CreateCommand();
-                cmd.Transaction = tx;
-                cmd.CommandText = @"
-                    INSERT INTO Flashcards (Word, Meaning, Category, Pronunciation, Example,
-                        ExampleTranslation, MemoryNote, CommonMistake, IsLearned, LastRating, NextReviewAt)
-                    VALUES ($w, $m, $c, $p, $e, $et, $n, $cm, $l, $r, $next)
-                    ON CONFLICT(Word) DO UPDATE SET
-                        Meaning=$m, Category=$c, Pronunciation=$p, Example=$e,
-                        ExampleTranslation=$et, MemoryNote=$n, CommonMistake=$cm,
-                        IsLearned=$l, LastRating=$r, NextReviewAt=$next";
-                cmd.Parameters.AddWithValue("$w", c.Word);
-                cmd.Parameters.AddWithValue("$m", c.Meaning);
-                cmd.Parameters.AddWithValue("$c", c.Category ?? "");
-                cmd.Parameters.AddWithValue("$p", c.Pronunciation ?? "");
-                cmd.Parameters.AddWithValue("$e", c.Example ?? "");
-                cmd.Parameters.AddWithValue("$et", c.ExampleTranslation ?? "");
-                cmd.Parameters.AddWithValue("$n", c.MemoryNote ?? "");
-                cmd.Parameters.AddWithValue("$cm", c.CommonMistake ?? "");
-                cmd.Parameters.AddWithValue("$l", c.IsLearned ? 1 : 0);
-                cmd.Parameters.AddWithValue("$r", c.LastRating);
-                cmd.Parameters.AddWithValue("$next", c.NextReviewAt is null
-                    ? DBNull.Value : c.NextReviewAt.Value.ToString("O", CultureInfo.InvariantCulture));
-                cmd.ExecuteNonQuery();
-            }
-            tx.Commit();
-        }
-        catch (SqlException ex)
-        {
-            throw new IOException(ex.Message, ex);
-        }
-    }
-
-
-    // ===== Đọc từ file SQl (#4) =====
+        // ===== Đọc từ file SQl (#4) =====
     // Load, Save, Validate ở trên là của bản chạy thử (đọc file JSON). Khi 2 hàm dưới đây chạy được thì:
     //   1. đổi chỗ gọi Load trong MainWindow.CountMistakes và OverviewScreen.ShowNumbers sang GetAll()
     //   2. xóa Load, Save, Validate, DefaultPath
     //   3. sửa Flashcard.cs theo docs/03: bỏ NextReviewAt, CommonMistake; IsLearned và Category thành thuộc tính tính sẵn
     //      (xóa luôn các dòng gán IsLearned, Category, CommonMistake ở trên và trong AddCardDialog.cs để app build được)
 
+    private const string SelectSql = """
+                                    SELECT f.Id, f.FolderId, f.Word, f.Meaning, f.Pronunciation, f.Example, f.ExampleTranslation, f.MemoryNote,
+                                    ISNULL(p.LastRating, 0), ISNULL(p.WrongCount, 0), ISNULL(p.LastWrongAnswer, '')
+                                    FROM Flashcards f
+                                    LEFT JOIN CardProgress p ON p.CardId = f.Id AND p.UserId = @userId
+                                    """;
+
+
     // Lấy tất cả từ. Ai gọi: màn Học, Tổng quan, Gõ đáp án, Ghép cặp.
     public static List<Flashcard> GetAll()
     {
         var cards = new List<Flashcard>();
 
-        // TODO (#4): chép code ở docs/03 mục "Đọc dữ liệu (ví dụ FlashcardStore.GetAll)":
-        // mở kết nối bằng Database.ConnectionString, SELECT đủ 11 cột, mỗi dòng đọc được thì cards.Add(new Flashcard { ... })
-
         using var conn = new SqlConnection(Database.ConnectionString);
-        using var cmd = new SqlCommand(
-            "SELECT Id, FolderId, Word, Meaning, Pronunciation, Example, ExampleTranslation, MemoryNote, " +
-            "LastRating, WrongCount, LastWrongAnswer FROM Flashcards", conn);
+        using var cmd = new SqlCommand(SelectSql + " ORDER BY f.Id", conn);
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+
         conn.Open();
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
@@ -168,13 +62,11 @@ public static class FlashcardStore
     {
         var cards = new List<Flashcard>();
 
-        // TODO (#4): giống GetAll, thêm "WHERE FolderId = @folderId" vào cuối câu SELECT và truyền giá trị bằng
-        //     cmd.Parameters.AddWithValue("@folderId", folderId);
-        // (không cộng chuỗi vào câu SQL, xem docs/02 quy tắc 1)
         using var conn = new SqlConnection(Database.ConnectionString);
-        using var cmd = new SqlCommand(
-            "SELECT Id, FolderId, Word, Meaning, Pronunciation, Example, ExampleTranslation, MemoryNote, " +
-            "LastRating, WrongCount, LastWrongAnswer FROM Flashcards", conn);
+        using var cmd = new SqlCommand(SelectSql + " WHERE f.FolderId = @folderId", conn);
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+        cmd.Parameters.AddWithValue("@folderId", folderId);
+
         conn.Open();
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
@@ -194,7 +86,6 @@ public static class FlashcardStore
                 LastWrongAnswer = reader.GetString(10)
             });
         }
-        return cards;
         return cards;
     }
 

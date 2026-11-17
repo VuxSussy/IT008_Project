@@ -115,7 +115,7 @@ partial class AddCardDialog
         meaningTextBox.Dock = DockStyle.Fill;
         meaningTextBox.Location = new Point(24, 120);
         meaningTextBox.Margin = new Padding(0, 4, 0, 4);
-        meaningTextBox.MaxLength = 300;
+        meaningTextBox.MaxLength = 255;
         meaningTextBox.Name = "meaningTextBox";
         meaningTextBox.Size = new Size(462, 25);
         meaningTextBox.TabIndex = 3;
@@ -136,7 +136,7 @@ partial class AddCardDialog
         pronunciationTextBox.Dock = DockStyle.Fill;
         pronunciationTextBox.Location = new Point(24, 186);
         pronunciationTextBox.Margin = new Padding(0, 4, 0, 4);
-        pronunciationTextBox.MaxLength = 150;
+        pronunciationTextBox.MaxLength = 100;
         pronunciationTextBox.Name = "pronunciationTextBox";
         pronunciationTextBox.Size = new Size(462, 25);
         pronunciationTextBox.TabIndex = 5;
@@ -157,7 +157,7 @@ partial class AddCardDialog
         exampleTextBox.Dock = DockStyle.Fill;
         exampleTextBox.Location = new Point(24, 252);
         exampleTextBox.Margin = new Padding(0, 4, 0, 4);
-        exampleTextBox.MaxLength = 1000;
+        exampleTextBox.MaxLength = 500;
         exampleTextBox.Multiline = true;
         exampleTextBox.Name = "exampleTextBox";
         exampleTextBox.ScrollBars = ScrollBars.Vertical;
@@ -180,7 +180,7 @@ partial class AddCardDialog
         translationTextBox.Dock = DockStyle.Fill;
         translationTextBox.Location = new Point(24, 344);
         translationTextBox.Margin = new Padding(0, 4, 0, 4);
-        translationTextBox.MaxLength = 1000;
+        translationTextBox.MaxLength = 500;
         translationTextBox.Multiline = true;
         translationTextBox.Name = "translationTextBox";
         translationTextBox.ScrollBars = ScrollBars.Vertical;
@@ -203,7 +203,7 @@ partial class AddCardDialog
         memoryNoteTextBox.Dock = DockStyle.Fill;
         memoryNoteTextBox.Location = new Point(24, 436);
         memoryNoteTextBox.Margin = new Padding(0, 4, 0, 4);
-        memoryNoteTextBox.MaxLength = 300;
+        memoryNoteTextBox.MaxLength = 500;
         memoryNoteTextBox.Name = "memoryNoteTextBox";
         memoryNoteTextBox.Size = new Size(462, 25);
         memoryNoteTextBox.TabIndex = 11;

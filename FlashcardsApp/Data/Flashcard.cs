@@ -19,5 +19,5 @@ public sealed class Flashcard
 
     // Tính sẵn, không lưu trong database
     public bool IsLearned => LastRating >= 3;
-    public string Category => "TỪ VỰNG";
+    public string Category => Word.Contains(' ') ? "CỤM TỪ" : "TỪ VỰNG";
 }

@@ -30,7 +30,7 @@ public partial class StudyScreen : UserControl
 
         if (cards.Count == 0)
         {
-            cards.AddRange(FlashcardStore.Load(FlashcardStore.DefaultPath));
+            cards.AddRange(FlashcardStore.GetAll());
         }
 
         folderComboBox.Items.Clear();

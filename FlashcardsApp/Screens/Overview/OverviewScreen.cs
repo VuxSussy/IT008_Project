@@ -70,7 +70,7 @@ public partial class OverviewScreen : UserControl
         // TODO (#4): đổi 2 dòng dưới thành
         //     var cards = FlashcardStore.GetAll();
         //     var folderCount = FolderStore.GetAll().Count;
-        var cards = FlashcardStore.Load(FlashcardStore.DefaultPath);
+        var cards = FlashcardStore.GetAll();
         var folderCount = 1;
 
         var totalCount = cards.Count;

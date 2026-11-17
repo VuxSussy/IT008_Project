@@ -89,7 +89,7 @@ public partial class MainWindow : Form
         try
         {
             // TODO (#12): đổi 2 dòng dưới thành: return StudyStore.GetMistakes().Count;
-            var cards = FlashcardStore.Load(FlashcardStore.DefaultPath);
+            var cards = FlashcardStore.GetAll();
             return cards.Count(card => card.LastRating == 1 || card.LastRating == 2);
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or JsonException)
