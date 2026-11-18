@@ -1,10 +1,12 @@
 namespace FlashcardsApp;
 
+// Một từ vựng, ứng với một dòng trong bảng Flashcards (#4).
+// LastRating, WrongCount, LastWrongAnswer đọc từ bảng CardProgress của người đang đăng nhập; chưa học thì 0, 0, "".
 public sealed class Flashcard
 {
     // Cột của bảng Flashcards (docs/03)
     public int Id { get; set; }
-    public int FolderId { get; set; } = 1;
+    public int FolderId { get; set; }
     public string Word { get; set; } = "";
     public string Meaning { get; set; } = "";
     public string Pronunciation { get; set; } = "";
