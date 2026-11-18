@@ -8,12 +8,6 @@
 [Oo]bj/
 artifacts/
 
-# File du lieu SQLite (moi may tu tao, khong commit)
-*.db
-*.db-journal
-*.db-wal
-*.db-shm
-
 # Python (test cua script setup)
 __pycache__/
 *.pyc

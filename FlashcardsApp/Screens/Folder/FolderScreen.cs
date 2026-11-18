@@ -1,10 +1,15 @@
+using Microsoft.Data.SqlClient;
+
 namespace FlashcardsApp;
 
+// Màn Thư mục và từ vựng (#6). Xem docs/04-gui.md mục 2.
+// Các nút thêm, sửa, xóa thư mục và từ là việc của #11 (cần các hàm của #7).
 public partial class FolderScreen : UserControl
 {
-    private List<FolderItem> folders = new();
+    private List<Folder> folders = new();
+    private Dictionary<int, int> cardCounts = new();   // số từ của mỗi thư mục, theo Id thư mục
     private List<Flashcard> allCardsInFolder = new();
-    private FolderItem? selectedFolder;
+    private Folder? selectedFolder;
 
     public FolderScreen()
     {
@@ -26,32 +31,36 @@ public partial class FolderScreen : UserControl
         this.importButton.Click += importButton_Click;
         this.leftPanel.Resize += (_, _) => UpdateFolderLayout();
 
-        LoadFolders();
+        if (!DesignMode) LoadFolders();
     }
 
     public void LoadFolders()
     {
-        // Khi merge nhánh Database sẽ gọi FolderStore.GetAll();
-        // Hiện tại khởi tạo mẫu theo đúng concept hình 2-folders.png:
-        folders = new List<FolderItem>
+        try
         {
-            new() { Id = 1, Name = "Chưa phân loại" },
-            new() { Id = 2, Name = "Unit 1 – Daily life" },
-            new() { Id = 3, Name = "Unit 2 – Work" },
-            new() { Id = 4, Name = "Từ IELTS" }
-        };
-
-        UpdateAllFolderCardCounts();
+            folders = FolderStore.GetAll();
+            UpdateAllFolderCardCounts();
+        }
+        catch (SqlException ex)
+        {
+            ShowLoadError(ex);
+            folders = new List<Folder>();
+        }
 
         folderListBox.DataSource = null;
         folderListBox.DataSource = folders;
-
-        if (folders.Count > 1)
-            folderListBox.SelectedIndex = 1; // Chọn Unit 1 - Daily life như hình mẫu
-        else if (folders.Count > 0)
-            folderListBox.SelectedIndex = 0;
+        if (folders.Count > 0) folderListBox.SelectedIndex = 0;
 
         UpdateFolderLayout();
+    }
+
+    // Đổi số đo trên màn 100% sang màn đang dùng, để phần tự vẽ không bị nhỏ trên màn nét
+    private int S(float value) => (int)StudyTheme.Scale(this, value);
+
+    private void ShowLoadError(SqlException ex)
+    {
+        MessageBox.Show(this, "Không đọc được dữ liệu. Hãy tắt app, mở lại rồi thử lần nữa.\n\n" + ex.Message,
+            "Thư mục", MessageBoxButtons.OK, MessageBoxIcon.Error);
     }
 
     private void UpdateFolderLayout()
@@ -61,35 +70,27 @@ public partial class FolderScreen : UserControl
         int contentHeight = count * itemHeight;
 
         // Vị trí tối đa cho phép trước khi đụng noteLabel ở đáy cột
-        int maxBottom = noteLabel.Top - 16 - newFolderButton.Height - 12;
+        int maxBottom = noteLabel.Top - S(16) - newFolderButton.Height - S(12);
         int availableHeight = Math.Max(itemHeight, maxBottom - folderListBox.Top);
 
         // Chiều cao ListBox ôm khít số lượng thư mục (không vượt quá vùng cho phép)
         folderListBox.Height = Math.Min(contentHeight, availableHeight);
 
         // Đặt nút "+ Thư mục mới" nằm ngay sát dưới thư mục cuối cùng (cách 12px)
-        newFolderButton.Top = folderListBox.Bottom + 12;
+        newFolderButton.Top = folderListBox.Bottom + S(12);
     }
 
+    // Đếm số từ của mọi thư mục bằng một lần đọc, thay vì gọi GetByFolder cho từng thư mục
     private void UpdateAllFolderCardCounts()
     {
-        try
-        {
-            var all = FlashcardStore.Load(FlashcardStore.DefaultPath);
-            foreach (var f in folders)
-            {
-                f.CardCount = all.Count(c => c.FolderId == f.Id || (f.Id == 1 && c.FolderId == 0));
-            }
-        }
-        catch
-        {
-            foreach (var f in folders) f.CardCount = 0;
-        }
+        cardCounts = FlashcardStore.GetAll()
+            .GroupBy(c => c.FolderId)
+            .ToDictionary(g => g.Key, g => g.Count());
     }
 
     private void folderListBox_SelectedIndexChanged(object? sender, EventArgs e)
     {
-        selectedFolder = folderListBox.SelectedItem as FolderItem;
+        selectedFolder = folderListBox.SelectedItem as Folder;
         if (selectedFolder is null) return;
 
         folderTitleLabel.Text = selectedFolder.Name;
@@ -106,8 +107,8 @@ public partial class FolderScreen : UserControl
             return;
         }
 
-        var selected = folderListBox.SelectedItem as FolderItem;
-        if (selected == null || selected.Id == 1) // Chưa phân loại không có nút sửa/xóa
+        var selected = folderListBox.SelectedItem as Folder;
+        if (selected == null || selected.IsDefault) // "Chưa phân loại" không có nút sửa/xóa
         {
             renameFolderButton.Visible = false;
             deleteFolderButton.Visible = false;
@@ -115,11 +116,11 @@ public partial class FolderScreen : UserControl
         }
 
         var rect = folderListBox.GetItemRectangle(folderListBox.SelectedIndex);
-        int btnY = folderListBox.Top + rect.Top + (rect.Height - 24) / 2;
-        int rightMargin = folderListBox.Left + rect.Width - 36; // Trước vị trí số lượng từ
+        int btnY = folderListBox.Top + rect.Top + (rect.Height - S(24)) / 2;
+        int rightMargin = folderListBox.Left + rect.Width - S(36); // Trước vị trí số lượng từ
 
-        deleteFolderButton.Location = new Point(rightMargin - 22, btnY);
-        renameFolderButton.Location = new Point(rightMargin - 46, btnY);
+        deleteFolderButton.Location = new Point(rightMargin - S(22), btnY);
+        renameFolderButton.Location = new Point(rightMargin - S(46), btnY);
 
         renameFolderButton.Visible = true;
         deleteFolderButton.Visible = true;
@@ -135,35 +136,35 @@ public partial class FolderScreen : UserControl
         bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
 
         // Vẽ nền tổng thể của vùng item
-        using var canvasBrush = new SolidBrush(Color.FromArgb(247, 249, 250));
+        using var canvasBrush = new SolidBrush(StudyTheme.Canvas);
         e.Graphics.FillRectangle(canvasBrush, e.Bounds);
 
-        var cardBounds = new Rectangle(e.Bounds.X + 2, e.Bounds.Y + 4, e.Bounds.Width - 4, e.Bounds.Height - 8);
+        var cardBounds = new Rectangle(e.Bounds.X + S(2), e.Bounds.Y + S(4), e.Bounds.Width - S(4), e.Bounds.Height - S(8));
 
         if (isSelected)
         {
             // Thư mục được chọn: Card trắng bo góc có viền xanh Teal #0F766E
             using var whiteBrush = new SolidBrush(Color.White);
-            using var tealPen = new Pen(Color.FromArgb(15, 118, 110), 1.5f);
-            using var path = StudyTheme.Round(cardBounds, 8);
+            using var tealPen = new Pen(StudyTheme.Teal, StudyTheme.Scale(this, 1.5f));
+            using var path = StudyTheme.RoundedRectangle(cardBounds, S(8));
             e.Graphics.FillPath(whiteBrush, path);
             e.Graphics.DrawPath(tealPen, path);
         }
 
         // Tên thư mục
-        string displayName = item.Id == 1 ? $"🔒  {item.Name}" : item.Name;
+        string displayName = item.IsDefault ? $"🔒  {item.Name}" : item.Name;
         using var font = new Font("Segoe UI", 10F, isSelected ? FontStyle.Bold : FontStyle.Regular);
-        Color textColor = isSelected ? Color.FromArgb(15, 23, 42) : Color.FromArgb(51, 65, 85);
+        Color textColor = isSelected ? StudyTheme.Ink : StudyTheme.Slate;
 
-        var textRect = new Rectangle(cardBounds.Left + 12, cardBounds.Top, cardBounds.Width - 85, cardBounds.Height);
+        var textRect = new Rectangle(cardBounds.Left + S(12), cardBounds.Top, cardBounds.Width - S(85), cardBounds.Height);
         TextRenderer.DrawText(e.Graphics, displayName, font, textRect, textColor,
             TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
         // Số lượng từ ở mép phải
         using var countFont = new Font("Segoe UI", 9.5F, isSelected ? FontStyle.Bold : FontStyle.Regular);
-        Color countColor = isSelected ? Color.FromArgb(15, 118, 110) : Color.FromArgb(100, 116, 139);
-        var countRect = new Rectangle(cardBounds.Right - 40, cardBounds.Top, 32, cardBounds.Height);
-        TextRenderer.DrawText(e.Graphics, item.CardCount.ToString(), countFont, countRect, countColor,
+        Color countColor = isSelected ? StudyTheme.Teal : StudyTheme.Muted;
+        var countRect = new Rectangle(cardBounds.Right - S(40), cardBounds.Top, S(32), cardBounds.Height);
+        TextRenderer.DrawText(e.Graphics, cardCounts.GetValueOrDefault(item.Id).ToString(), countFont, countRect, countColor,
             TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
     }
 
@@ -171,17 +172,12 @@ public partial class FolderScreen : UserControl
     {
         try
         {
-            var all = FlashcardStore.Load(FlashcardStore.DefaultPath);
-            allCardsInFolder = all.Where(c => c.FolderId == folderId || (folderId == 1 && c.FolderId == 0)).ToList();
+            allCardsInFolder = FlashcardStore.GetByFolder(folderId);
         }
-        catch
+        catch (SqlException ex)
         {
+            ShowLoadError(ex);
             allCardsInFolder = new List<Flashcard>();
-        }
-
-        if (selectedFolder != null)
-        {
-            selectedFolder.CardCount = allCardsInFolder.Count;
         }
 
         UpdateStatistics();
@@ -226,38 +222,25 @@ public partial class FolderScreen : UserControl
             e.PaintBackground(e.ClipBounds, true);
             string text = e.Value.ToString() ?? "";
 
-            Color bg = Color.FromArgb(241, 245, 249);
-            Color fg = Color.FromArgb(71, 85, 105);
-
-            switch (text)
+            // Màu lấy trong StudyTheme (docs/02 quy tắc 8). Quên, Khó là từ đang nằm trong sổ lỗi nên dùng màu cam, vàng
+            var (bg, fg) = text switch
             {
-                case "Nhớ":
-                    bg = Color.FromArgb(220, 252, 231);
-                    fg = Color.FromArgb(22, 101, 52);
-                    break;
-                case "Khó":
-                    bg = Color.FromArgb(254, 243, 199);
-                    fg = Color.FromArgb(180, 83, 9);
-                    break;
-                case "Dễ":
-                    bg = Color.FromArgb(204, 251, 241);
-                    fg = Color.FromArgb(15, 118, 110);
-                    break;
-                case "Quên":
-                    bg = Color.FromArgb(254, 226, 226);
-                    fg = Color.FromArgb(185, 28, 28);
-                    break;
-            }
+                "Quên" => (StudyTheme.SoftWarning, StudyTheme.Warning),
+                "Khó" => (StudyTheme.SoftGold, StudyTheme.Gold),
+                "Nhớ" => (StudyTheme.SoftTeal, StudyTheme.DarkTeal),
+                "Dễ" => (StudyTheme.Teal, Color.White),
+                _ => (StudyTheme.Divider, StudyTheme.Slate)          // Chưa học
+            };
 
-            int pillWidth = 68;
-            int pillHeight = 24;
+            int pillWidth = S(68);
+            int pillHeight = S(24);
             int pillX = e.CellBounds.X + (e.CellBounds.Width - pillWidth) / 2;
             int pillY = e.CellBounds.Y + (e.CellBounds.Height - pillHeight) / 2;
             var pillRect = new Rectangle(pillX, pillY, pillWidth, pillHeight);
 
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             using var brush = new SolidBrush(bg);
-            using var path = StudyTheme.Round(pillRect, 12);
+            using var path = StudyTheme.RoundedRectangle(pillRect, S(12));
             e.Graphics.FillPath(brush, path);
 
             using var font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
@@ -284,175 +267,40 @@ public partial class FolderScreen : UserControl
 
     private void addWordButton_Click(object? sender, EventArgs e)
     {
-        using var dialog = new AddCardDialog(allCardsInFolder);
-        if (dialog.ShowDialog(this) == DialogResult.OK && dialog.Card is not null)
-        {
-            dialog.Card.FolderId = selectedFolder?.Id ?? 1;
-
-            var all = FlashcardStore.Load(FlashcardStore.DefaultPath);
-            all.Add(dialog.Card);
-            FlashcardStore.Save(FlashcardStore.DefaultPath, all);
-
-            UpdateAllFolderCardCounts();
-            folderListBox.Invalidate();
-            LoadCardsForFolder(selectedFolder?.Id ?? 1);
-        }
+        // TODO (#11): mở AddCardDialog, bấm Lưu thì FlashcardStore.Add(dialog.Card) vào thư mục đang chọn,
+        // rồi UpdateAllFolderCardCounts(), folderListBox.Invalidate(), LoadCardsForFolder(selectedFolder.Id)
     }
 
     private void wordGrid_CellContentClick(object? sender, DataGridViewCellEventArgs e)
     {
         if (e.RowIndex < 0) return;
-        var card = wordGrid.Rows[e.RowIndex].Tag as Flashcard;
-        if (card is null) return;
+        if (wordGrid.Rows[e.RowIndex].Tag is not Flashcard card) return;
 
-        // Bấm nút Sửa
-        if (e.ColumnIndex == coledit.Index)
+        if (e.ColumnIndex == editColumn.Index)
         {
-            using var dialog = new AddCardDialog(allCardsInFolder);
-            if (dialog.ShowDialog(this) == DialogResult.OK && dialog.Card is not null)
-            {
-                card.Word = dialog.Card.Word;
-                card.Meaning = dialog.Card.Meaning;
-                card.Pronunciation = dialog.Card.Pronunciation;
-                card.Example = dialog.Card.Example;
-                card.ExampleTranslation = dialog.Card.ExampleTranslation;
-                card.MemoryNote = dialog.Card.MemoryNote;
-
-                var all = FlashcardStore.Load(FlashcardStore.DefaultPath);
-                FlashcardStore.Save(FlashcardStore.DefaultPath, all);
-                LoadCardsForFolder(selectedFolder?.Id ?? 1);
-            }
+            // TODO (#11): mở AddCardDialog ở chế độ Sửa với card, bấm Lưu thì FlashcardStore.Update rồi tải lại bảng
         }
-        // Bấm nút Xóa
-        else if (e.ColumnIndex == coldelete.Index)
+        else if (e.ColumnIndex == deleteColumn.Index)
         {
-            var confirm = MessageBox.Show(
-                $"Bạn có chắc muốn xóa từ \"{card.Word}\"?",
-                "Xác nhận xóa",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (confirm == DialogResult.Yes)
-            {
-                allCardsInFolder.Remove(card);
-                var all = FlashcardStore.Load(FlashcardStore.DefaultPath);
-                all.RemoveAll(c => c.Word == card.Word && c.Meaning == card.Meaning);
-                FlashcardStore.Save(FlashcardStore.DefaultPath, all);
-
-                UpdateAllFolderCardCounts();
-                folderListBox.Invalidate();
-                LoadCardsForFolder(selectedFolder?.Id ?? 1);
-            }
+            // TODO (#11): hỏi "Bạn có chắc muốn xóa từ này?", Yes thì FlashcardStore.Delete(card.Id) rồi tải lại
         }
     }
 
     private void newFolderButton_Click(object? sender, EventArgs e)
     {
-        using var prompt = new Form
-        {
-            Width = 360,
-            Height = 170,
-            FormBorderStyle = FormBorderStyle.FixedDialog,
-            Text = "Thư mục mới",
-            StartPosition = FormStartPosition.CenterParent,
-            MaximizeBox = false,
-            MinimizeBox = false,
-            BackColor = Color.White
-        };
-
-        var label = new Label { Left = 20, Top = 16, Text = "Tên thư mục:", AutoSize = true, Font = new Font("Segoe UI", 9.5F) };
-        var textBox = new TextBox { Left = 20, Top = 40, Width = 300, Font = new Font("Segoe UI", 10F) };
-        var okBtn = new Button { Text = "Tạo", Left = 150, Width = 80, Top = 80, Height = 30, DialogResult = DialogResult.OK, BackColor = Color.FromArgb(15, 118, 110), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
-        var cancelBtn = new Button { Text = "Hủy", Left = 240, Width = 80, Top = 80, Height = 30, DialogResult = DialogResult.Cancel, FlatStyle = FlatStyle.Flat };
-
-        prompt.Controls.AddRange(new Control[] { label, textBox, okBtn, cancelBtn });
-        prompt.AcceptButton = okBtn;
-        prompt.CancelButton = cancelBtn;
-
-        if (prompt.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(textBox.Text))
-        {
-            string name = textBox.Text.Trim();
-            if (folders.Any(f => string.Equals(f.Name, name, StringComparison.OrdinalIgnoreCase)))
-            {
-                MessageBox.Show("Thư mục này đã tồn tại!", "Trùng tên", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            int nextId = (folders.Count > 0 ? folders.Max(f => f.Id) : 0) + 1;
-            var newFolder = new FolderItem { Id = nextId, Name = name, CardCount = 0 };
-            folders.Add(newFolder);
-
-            folderListBox.DataSource = null;
-            folderListBox.DataSource = folders;
-            folderListBox.SelectedItem = newFolder;
-            UpdateFolderLayout();
-        }
+        // TODO (#11): hỏi tên, kiểm tra FolderStore.NameExists, gọi FolderStore.Add rồi LoadFolders()
     }
 
     private void renameFolderButton_Click(object? sender, EventArgs e)
     {
-        if (selectedFolder is null || selectedFolder.Id == 1) return;
-
-        using var prompt = new Form
-        {
-            Width = 360,
-            Height = 170,
-            FormBorderStyle = FormBorderStyle.FixedDialog,
-            Text = "Đổi tên thư mục",
-            StartPosition = FormStartPosition.CenterParent,
-            MaximizeBox = false,
-            MinimizeBox = false,
-            BackColor = Color.White
-        };
-
-        var label = new Label { Left = 20, Top = 16, Text = "Tên mới:", AutoSize = true, Font = new Font("Segoe UI", 9.5F) };
-        var textBox = new TextBox { Left = 20, Top = 40, Width = 300, Font = new Font("Segoe UI", 10F), Text = selectedFolder.Name };
-        var okBtn = new Button { Text = "Lưu", Left = 150, Width = 80, Top = 80, DialogResult = DialogResult.OK, BackColor = Color.FromArgb(15, 118, 110), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
-        var cancelBtn = new Button { Text = "Hủy", Left = 240, Width = 80, Top = 80, DialogResult = DialogResult.Cancel, FlatStyle = FlatStyle.Flat };
-
-        prompt.Controls.AddRange(new Control[] { label, textBox, okBtn, cancelBtn });
-        prompt.AcceptButton = okBtn;
-        prompt.CancelButton = cancelBtn;
-
-        if (prompt.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(textBox.Text))
-        {
-            selectedFolder.Name = textBox.Text.Trim();
-            folderTitleLabel.Text = selectedFolder.Name;
-            folderListBox.Invalidate();
-        }
+        if (selectedFolder is null || selectedFolder.IsDefault) return;
+        // TODO (#11): hỏi tên mới, kiểm tra FolderStore.NameExists, gọi FolderStore.Rename rồi LoadFolders()
     }
 
     private void deleteFolderButton_Click(object? sender, EventArgs e)
     {
-        if (selectedFolder is null || selectedFolder.Id == 1) return;
-
-        var confirm = MessageBox.Show(
-            $"Bạn có chắc muốn xóa thư mục \"{selectedFolder.Name}\"?\n\nCác từ trong thư mục sẽ được chuyển về \"Chưa phân loại\".",
-            "Xác nhận xóa",
-            MessageBoxButtons.YesNo,
-            MessageBoxIcon.Question);
-
-        if (confirm == DialogResult.Yes)
-        {
-            try
-            {
-                var all = FlashcardStore.Load(FlashcardStore.DefaultPath);
-                foreach (var c in all.Where(c => c.FolderId == selectedFolder.Id))
-                {
-                    c.FolderId = 1; // Chuyển về Chưa phân loại
-                }
-                FlashcardStore.Save(FlashcardStore.DefaultPath, all);
-            }
-            catch { }
-
-            folders.Remove(selectedFolder);
-            UpdateAllFolderCardCounts();
-
-            folderListBox.DataSource = null;
-            folderListBox.DataSource = folders;
-            folderListBox.SelectedIndex = 0;
-            UpdateFolderLayout();
-        }
+        if (selectedFolder is null || selectedFolder.IsDefault) return;
+        // TODO (#11): hỏi lại (từ trong thư mục sẽ về "Chưa phân loại"), gọi FolderStore.Delete rồi LoadFolders()
     }
 
     private void studyFolderButton_Click(object? sender, EventArgs e)

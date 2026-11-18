@@ -38,8 +38,8 @@ partial class FolderScreen
         colMean = new DataGridViewTextBoxColumn();
         colPronunciation = new DataGridViewTextBoxColumn();
         colRating = new DataGridViewTextBoxColumn();
-        coledit = new DataGridViewButtonColumn();
-        coldelete = new DataGridViewButtonColumn();
+        editColumn = new DataGridViewButtonColumn();
+        deleteColumn = new DataGridViewButtonColumn();
         searchTextBox = new TextBox();
         addWordButton = new Button();
         importButton = new Button();
@@ -202,7 +202,7 @@ partial class FolderScreen
         wordGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
         wordGrid.ColumnHeadersHeight = 38;
         wordGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-        wordGrid.Columns.AddRange(new DataGridViewColumn[] { colWord, colMean, colPronunciation, colRating, coledit, coldelete });
+        wordGrid.Columns.AddRange(new DataGridViewColumn[] { colWord, colMean, colPronunciation, colRating, editColumn, deleteColumn });
         wordGrid.EnableHeadersVisualStyles = false;
         wordGrid.GridColor = Color.FromArgb(241, 245, 249);
         wordGrid.Location = new Point(20, 124);
@@ -259,37 +259,37 @@ partial class FolderScreen
         colRating.Name = "colRating";
         colRating.ReadOnly = true;
         // 
-        // coledit
+        // editColumn
         // 
-        coledit.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+        editColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
         dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleRight;
         dataGridViewCellStyle5.Font = new Font("Segoe UI", 10F);
         dataGridViewCellStyle5.ForeColor = Color.FromArgb(71, 85, 105);
-        coledit.DefaultCellStyle = dataGridViewCellStyle5;
-        coledit.FlatStyle = FlatStyle.Flat;
-        coledit.HeaderText = "THAO";
-        coledit.MinimumWidth = 50;
-        coledit.Name = "coledit";
-        coledit.ReadOnly = true;
-        coledit.Text = "✏";
-        coledit.UseColumnTextForButtonValue = true;
-        coledit.Width = 50;
+        editColumn.DefaultCellStyle = dataGridViewCellStyle5;
+        editColumn.FlatStyle = FlatStyle.Flat;
+        editColumn.HeaderText = "THAO";
+        editColumn.MinimumWidth = 50;
+        editColumn.Name = "editColumn";
+        editColumn.ReadOnly = true;
+        editColumn.Text = "✏";
+        editColumn.UseColumnTextForButtonValue = true;
+        editColumn.Width = 50;
         // 
-        // coldelete
+        // deleteColumn
         // 
-        coldelete.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+        deleteColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
         dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
         dataGridViewCellStyle6.Font = new Font("Segoe UI", 10F);
         dataGridViewCellStyle6.ForeColor = Color.FromArgb(220, 38, 38);
-        coldelete.DefaultCellStyle = dataGridViewCellStyle6;
-        coldelete.FlatStyle = FlatStyle.Flat;
-        coldelete.HeaderText = "TÁC";
-        coldelete.MinimumWidth = 44;
-        coldelete.Name = "coldelete";
-        coldelete.ReadOnly = true;
-        coldelete.Text = "🗑";
-        coldelete.UseColumnTextForButtonValue = true;
-        coldelete.Width = 44;
+        deleteColumn.DefaultCellStyle = dataGridViewCellStyle6;
+        deleteColumn.FlatStyle = FlatStyle.Flat;
+        deleteColumn.HeaderText = "TÁC";
+        deleteColumn.MinimumWidth = 44;
+        deleteColumn.Name = "deleteColumn";
+        deleteColumn.ReadOnly = true;
+        deleteColumn.Text = "🗑";
+        deleteColumn.UseColumnTextForButtonValue = true;
+        deleteColumn.Width = 44;
         // 
         // searchTextBox
         // 
@@ -439,7 +439,7 @@ partial class FolderScreen
     private DataGridViewTextBoxColumn colMean;
     private DataGridViewTextBoxColumn colPronunciation;
     private DataGridViewTextBoxColumn colRating;
-    private DataGridViewButtonColumn coledit;
-    private DataGridViewButtonColumn coldelete;
+    private DataGridViewButtonColumn editColumn;
+    private DataGridViewButtonColumn deleteColumn;
 }
 
