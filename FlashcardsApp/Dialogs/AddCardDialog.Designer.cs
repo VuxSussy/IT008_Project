@@ -94,7 +94,7 @@ partial class AddCardDialog
         wordTextBox.Dock = DockStyle.Fill;
         wordTextBox.Location = new Point(24, 54);
         wordTextBox.Margin = new Padding(0, 4, 0, 4);
-        wordTextBox.MaxLength = 100;
+        wordTextBox.MaxLength = 200;
         wordTextBox.Name = "wordTextBox";
         wordTextBox.Size = new Size(462, 25);
         wordTextBox.TabIndex = 1;

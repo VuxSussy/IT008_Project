@@ -1,4 +1,10 @@
 using Microsoft.Data.SqlClient;
+
+namespace FlashcardsApp;
+
+// Tạo cơ sở dữ liệu Flashcards trên SQL Server Express của máy, 9 bảng và dữ liệu mẫu. Việc của #4.
+// Bảng, cột, khóa chính, khóa ngoại: xem docs/03-database.md và ảnh docs/assets/data/data.png.
+// Các chỗ ghi "TODO (#4)" là phần còn phải viết. Trong Visual Studio mở View → Task List để thấy hết.
 public static class Database
 {
     // Máy nào đặt tên khác .\SQLEXPRESS thì sửa ở đây, nhưng đừng commit dòng đã sửa

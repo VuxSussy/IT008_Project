@@ -16,9 +16,10 @@ internal static class Program
         {
             Database.EnsureCreated();
         }
-        catch (SqlException sqlex)
+        catch (SqlException)
         {
             MessageBox.Show("Chưa kết nối được SQL Server. Xem docs/01, mục Cài SQL Server.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
         }
         // TODO (#36): bỏ dòng gán tạm dưới đây, mở hộp đăng nhập trước; bấm Thoát thì tắt app:
         //     using (var login = new LoginDialog())

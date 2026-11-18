@@ -71,7 +71,7 @@ public partial class OverviewScreen : UserControl
         //     var cards = FlashcardStore.GetAll();
         //     var folderCount = FolderStore.GetAll().Count;
         var cards = FlashcardStore.GetAll();
-        var folderCount = 1;
+        var folderCount = FolderStore.GetAll().Count;
 
         var totalCount = cards.Count;
         var learnedCount = cards.Count(card => card.IsLearned);

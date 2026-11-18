@@ -1,22 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Globalization;
 using Microsoft.Data.SqlClient;
-using System.Security.Cryptography;
 
 namespace FlashcardsApp;
 
 public static class FlashcardStore
 {
-    // ===== Đọc từ file SQl (#4) =====
-    // Load, Save, Validate ở trên là của bản chạy thử (đọc file JSON). Khi 2 hàm dưới đây chạy được thì:
-    //   1. đổi chỗ gọi Load trong MainWindow.CountMistakes và OverviewScreen.ShowNumbers sang GetAll()
-    //   2. xóa Load, Save, Validate, DefaultPath
-    //   3. sửa Flashcard.cs theo docs/03: bỏ NextReviewAt, CommonMistake; IsLearned và Category thành thuộc tính tính sẵn
-    //      (xóa luôn các dòng gán IsLearned, Category, CommonMistake ở trên và trong AddCardDialog.cs để app build được)
 
     private const string SelectSql = """
     SELECT f.Id, f.FolderId, f.Word, f.Meaning,
@@ -37,8 +27,11 @@ public static class FlashcardStore
         var cards = new List<Flashcard>();
 
         using var conn = new SqlConnection(Database.ConnectionString);
+        // TODO (#39): chỉ lấy bài đã mở bằng CourseStore.GetUnlockedFolderIds()
         using var cmd = new SqlCommand(SelectSql + """
-        WHERE
+         WHERE
+            fo.OwnerId = @userId
+            OR
             fo.CourseId IS NOT NULL
             OR (
                 fo.StartDate IS NOT NULL
