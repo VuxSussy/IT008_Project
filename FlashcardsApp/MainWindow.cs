@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Data.SqlClient;
 
 namespace FlashcardsApp;
 
@@ -92,9 +93,9 @@ public partial class MainWindow : Form
             var cards = FlashcardStore.GetAll();
             return cards.Count(card => card.LastRating == 1 || card.LastRating == 2);
         }
-        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or JsonException)
+        catch (Exception ex) when (ex is SqlException or IOException or InvalidDataException or UnauthorizedAccessException or JsonException)
         {
-            // Chỉ bắt lỗi đọc file; lỗi khác là lỗi code, để app báo ra cho dễ sửa.
+            // Chỉ bắt lỗi đọc dữ liệu (mất kết nối SQL Server...); lỗi khác là lỗi code, để app báo ra cho dễ sửa.
             // Không đếm được thì để trống số trên nút Sổ lỗi, màn Sổ lỗi sẽ tự báo lỗi khi mở.
             return 0;
         }

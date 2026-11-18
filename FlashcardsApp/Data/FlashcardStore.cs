@@ -7,79 +7,50 @@ namespace FlashcardsApp;
 
 public static class FlashcardStore
 {
-    // ===== Đọc từ file SQl (#4) =====
-    // Load, Save, Validate ở trên là của bản chạy thử (đọc file JSON). Khi 2 hàm dưới đây chạy được thì:
-    //   1. đổi chỗ gọi Load trong MainWindow.CountMistakes và OverviewScreen.ShowNumbers sang GetAll()
-    //   2. xóa Load, Save, Validate, DefaultPath
-
+    // Câu SELECT chung: từ kèm mức nhớ của người đang đăng nhập (LEFT JOIN, chưa học thì 0, 0, "")
     private const string SelectSql = """
-    SELECT f.Id, f.FolderId, f.Word, f.Meaning,
-           f.Pronunciation, f.Example, f.ExampleTranslation, f.MemoryNote,
-           ISNULL(p.LastRating, 0),
-           ISNULL(p.WrongCount, 0),
-           ISNULL(p.LastWrongAnswer, '')
-    FROM Flashcards f
-    JOIN Folders fo ON fo.Id = f.FolderId
-    LEFT JOIN CardProgress p
-        ON p.CardId = f.Id AND p.UserId = @userId
-    """;
+        SELECT f.Id, f.FolderId, f.Word, f.Meaning,
+               f.Pronunciation, f.Example, f.ExampleTranslation, f.MemoryNote,
+               ISNULL(p.LastRating, 0), ISNULL(p.WrongCount, 0), ISNULL(p.LastWrongAnswer, '')
+        FROM Flashcards f
+        JOIN Folders fo ON fo.Id = f.FolderId
+        LEFT JOIN CardProgress p ON p.CardId = f.Id AND p.UserId = @userId
 
+        """;
 
-    // Lấy tất cả từ. Ai gọi: màn Học, Tổng quan, Gõ đáp án, Ghép cặp.
+    // Lấy tất cả từ người đang đăng nhập được thấy, kèm mức nhớ của người đó.
+    // Điều kiện WHERE giống hệt FolderStore.GetAll, sửa bên này thì sửa cả bên đó.
+    // Ai gọi: màn Học, Tổng quan, Gõ đáp án, Ghép cặp.
     public static List<Flashcard> GetAll()
     {
-        var cards = new List<Flashcard>();
-
         using var conn = new SqlConnection(Database.ConnectionString);
-        // TODO (#39): chỉ lấy bài đã mở bằng CourseStore.GetUnlockedFolderIds()
+        // TODO (#39): đổi "fo.CourseId IS NOT NULL" thành chỉ các bài đã mở (CourseStore.GetUnlockedFolderIds)
         using var cmd = new SqlCommand(SelectSql + """
-         WHERE
-            fo.OwnerId = @userId
-            OR
-            fo.CourseId IS NOT NULL
-            OR (
-                fo.StartDate IS NOT NULL
-                AND fo.EndDate IS NOT NULL
-                AND CAST(GETDATE() AS DATE)
-                    BETWEEN fo.StartDate AND fo.EndDate
-            )
-        ORDER BY f.Id
-        """, conn);
+            WHERE fo.OwnerId = @userId
+               OR fo.CourseId IS NOT NULL
+               OR CAST(GETDATE() AS DATE) BETWEEN fo.StartDate AND fo.EndDate
+            ORDER BY f.Id
+            """, conn);
         cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
-
-        conn.Open();
-        using var reader = cmd.ExecuteReader();
-        while (reader.Read())
-        {
-            cards.Add(new Flashcard
-            {
-                Id = reader.GetInt32(0),
-                FolderId = reader.GetInt32(1),
-                Word = reader.GetString(2),
-                Meaning = reader.GetString(3),
-                Pronunciation = reader.GetString(4),
-                Example = reader.GetString(5),
-                ExampleTranslation = reader.GetString(6),
-                MemoryNote = reader.GetString(7),
-                LastRating = reader.GetInt32(8),
-                WrongCount = reader.GetInt32(9),
-                LastWrongAnswer = reader.GetString(10)
-            });
-        }
-        return cards;
+        return Read(cmd);
     }
 
     // Lấy các từ của một thư mục. Ai gọi: màn Thư mục, StudyScreen.StartFolder.
     public static List<Flashcard> GetByFolder(int folderId)
     {
-        var cards = new List<Flashcard>();
-
         using var conn = new SqlConnection(Database.ConnectionString);
-        using var cmd = new SqlCommand(SelectSql + " WHERE f.FolderId = @folderId", conn);
+        using var cmd = new SqlCommand(SelectSql + "WHERE f.FolderId = @folderId ORDER BY f.Id", conn);
         cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
         cmd.Parameters.AddWithValue("@folderId", folderId);
+        return Read(cmd);
+    }
 
-        conn.Open();
+    // Chạy câu SELECT (cột theo đúng thứ tự trong SelectSql) và đổi từng dòng thành Flashcard.
+    // StudyStore.GetMistakes (#12) cũng dùng được hàm này.
+    internal static List<Flashcard> Read(SqlCommand cmd)
+    {
+        var cards = new List<Flashcard>();
+        cmd.Connection.Open();
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
         {
@@ -100,6 +71,7 @@ public static class FlashcardStore
         }
         return cards;
     }
+
 
     // Thêm một từ. Ai gọi: AddCardDialog, ImportWordsDialog (qua màn Thư mục).
     public static void Add(Flashcard card)

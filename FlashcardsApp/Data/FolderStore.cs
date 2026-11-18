@@ -5,110 +5,41 @@ namespace FlashcardsApp;
 // Đọc, ghi bảng Folders. Mọi câu SQL về thư mục nằm ở đây. Xem docs/03-database.md.
 public static class FolderStore
 {
-    private const string SelectSql = """
-                                    SELECT f.Id, f.Name, f.OwnerId, f.IsDefault, f.CourseId, f.LessonOrder, f.StartDate, f.EndDate,
-                                    ISNULL(p.LastRating, 0), ISNULL(p.WrongCount, 0), ISNULL(p.LastWrongAnswer, '')
-                                    FROM Folder f
-                                    LEFT JOIN CardProgress p ON p.CardId = f.Id AND p.UserId = @userId
+    private const string SelectSql =
+        "SELECT Id, Name, OwnerId, IsDefault, CourseId, LessonOrder, StartDate, EndDate FROM Folders ";
 
-                                    """;
-    // Lấy tất cả thư mục, xếp theo Id (thư mục số 1 "Chưa phân loại" đứng đầu).
+    // Các thư mục người đang đăng nhập được thấy (docs/03, mục "Ai thấy thư mục nào"), "Chưa phân loại" của mình đứng đầu.
+    // Admin: mọi thư mục của mình. User: thư mục của mình, bài trong khóa học, thư mục theo mùa đang diễn ra.
+    // FlashcardStore.GetAll lọc từ theo đúng điều kiện này, sửa ở đây thì sửa cả bên đó.
     // Ai gọi: màn Thư mục, màn Tổng quan (đếm số thư mục), ô chọn thư mục ở màn Học.
-    // Lấy tất cả thư mục mà người đang đăng nhập được phép nhìn thấy.
     public static List<Folder> GetAll()
     {
-        var folders = new List<Folder>();
-        var user = Session.CurrentUser!;
-
         using var conn = new SqlConnection(Database.ConnectionString);
-
-        // Admin chỉ cần lấy tất cả thư mục do mình tạo.
-        // User cần thêm các bài học đã mở và thư mục theo mùa đang diễn ra.
-        var unlockedFolderIds = user.IsAdmin
-            ? new List<int>()
-            : CourseStore.GetUnlockedFolderIds();
-
-        var unlockedConditions = new List<string>();
-
-        for (int i = 0; i < unlockedFolderIds.Count; i++)
-        {
-            unlockedConditions.Add($"@folderId{i}");
-        }
-
-        string unlockedSql = unlockedConditions.Count > 0
-            ? $"OR Id IN ({string.Join(", ", unlockedConditions)})"
-            : "";
-
-        using var cmd = new SqlCommand($"""
-        SELECT Id, Name, OwnerId, IsDefault,
-               CourseId, LessonOrder, StartDate, EndDate
-        FROM Folders
-        WHERE
-            OwnerId = @userId
-            OR (
-                @isAdmin = 0
-                AND (
-                    (StartDate IS NOT NULL
-                     AND EndDate IS NOT NULL
-                     AND CAST(GETDATE() AS DATE)
-                         BETWEEN StartDate AND EndDate)
-                    {unlockedSql}
-                )
-            )
-        ORDER BY IsDefault DESC, Id
-        """, conn);
-
-        cmd.Parameters.AddWithValue("@userId", user.Id);
-        cmd.Parameters.AddWithValue("@isAdmin", user.IsAdmin);
-
-        for (int i = 0; i < unlockedFolderIds.Count; i++)
-        {
-            cmd.Parameters.AddWithValue(
-                $"@folderId{i}",
-                unlockedFolderIds[i]
-            );
-        }
-
-        conn.Open();
-
-        using var reader = cmd.ExecuteReader();
-
-        while (reader.Read())
-        {
-            folders.Add(new Folder
-            {
-                Id = reader.GetInt32(0),
-                Name = reader.GetString(1),
-                OwnerId = reader.GetInt32(2),
-                IsDefault = reader.GetBoolean(3),
-                CourseId = reader.IsDBNull(4) ? null : reader.GetInt32(4),
-                LessonOrder = reader.IsDBNull(5) ? null : reader.GetInt32(5),
-                StartDate = reader.IsDBNull(6) ? null : reader.GetDateTime(6),
-                EndDate = reader.IsDBNull(7) ? null : reader.GetDateTime(7)
-            });
-        }
-
-        return folders;
+        // TODO (#39): đổi "CourseId IS NOT NULL" thành chỉ các bài đã mở (CourseStore.GetUnlockedFolderIds)
+        using var cmd = new SqlCommand(SelectSql + """
+            WHERE OwnerId = @userId
+               OR CourseId IS NOT NULL
+               OR CAST(GETDATE() AS DATE) BETWEEN StartDate AND EndDate
+            ORDER BY IsDefault DESC, Id
+            """, conn);
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+        return Read(cmd);
     }
 
     // Thư mục do người đang đăng nhập tạo, "Chưa phân loại" đứng đầu. Ai gọi: màn Thư mục của tôi, ô chọn thư mục ở tab Quản trị.
     public static List<Folder> GetMine()
     {
-        var folders = new List<Folder>();
-
-        // TODO (#4): WHERE OwnerId = @userId ORDER BY IsDefault DESC, Id
-
         using var conn = new SqlConnection(Database.ConnectionString);
-
-        using var cmd = new SqlCommand("""
-                                    SELECT Id, Name, OwnerId, IsDefault, CourseId, LessonOrder, StartDate, EndDate
-                                    FROM Folders 
-                                    WHERE OwnerId = @userId
-                                    ORDER BY IsDefault DESC, Id
-                                    """, conn);
-
+        using var cmd = new SqlCommand(SelectSql + "WHERE OwnerId = @userId ORDER BY IsDefault DESC, Id", conn);
         cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
-        conn.Open();
+        return Read(cmd);
+    }
+
+    // Chạy câu SELECT (cột theo đúng thứ tự trong SelectSql) và đổi từng dòng thành Folder
+    private static List<Folder> Read(SqlCommand cmd)
+    {
+        var folders = new List<Folder>();
+        cmd.Connection.Open();
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
         {
@@ -118,7 +49,6 @@ public static class FolderStore
                 Name = reader.GetString(1),
                 OwnerId = reader.GetInt32(2),
                 IsDefault = reader.GetBoolean(3),
-
                 CourseId = reader.IsDBNull(4) ? null : reader.GetInt32(4),
                 LessonOrder = reader.IsDBNull(5) ? null : reader.GetInt32(5),
                 StartDate = reader.IsDBNull(6) ? null : reader.GetDateTime(6),

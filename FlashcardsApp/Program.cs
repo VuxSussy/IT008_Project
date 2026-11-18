@@ -11,7 +11,7 @@ internal static class Program
         // Bật cài đặt chung của WinForms: chữ nét trên màn độ phân giải cao, font mặc định
         ApplicationConfiguration.Initialize();
 
-        // Lần đầu mở app: tạo file flashcards.db và 30 từ mẫu (#4)
+        // Lần đầu mở app: tạo cơ sở dữ liệu Flashcards trên SQL Server Express, 3 tài khoản và dữ liệu mẫu (#4)
         try
         {
             Database.EnsureCreated();

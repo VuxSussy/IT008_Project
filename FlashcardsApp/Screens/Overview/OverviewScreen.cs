@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using Microsoft.Data.SqlClient;
 
 namespace FlashcardsApp;
 
@@ -37,8 +38,7 @@ public partial class OverviewScreen : UserControl
             ShowRush();
             ShowRank();
         }
-        // TODO (#4): khi chuyển sang SQL Server thì thêm "or SqlException" vào dòng dưới
-        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or JsonException)
+        catch (Exception ex) when (ex is SqlException or IOException or InvalidDataException or UnauthorizedAccessException or JsonException)
         {
             MessageBox.Show(this, "Không đọc được dữ liệu. Hãy tắt app, mở lại rồi thử lần nữa.\n\n" + ex.Message,
                 "Tổng quan", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -67,9 +67,6 @@ public partial class OverviewScreen : UserControl
     // Dòng Tiến độ ghi nhớ, dòng Sổ lỗi và chữ trên nút Học ngay
     private void ShowNumbers()
     {
-        // TODO (#4): đổi 2 dòng dưới thành
-        //     var cards = FlashcardStore.GetAll();
-        //     var folderCount = FolderStore.GetAll().Count;
         var cards = FlashcardStore.GetAll();
         var folderCount = FolderStore.GetAll().Count;
 

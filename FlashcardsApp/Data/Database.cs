@@ -111,7 +111,7 @@ public static class Database
         );
         """;
 
-    // 3 tài khoản mẫu, mật khẩu đều là 123456:
+    // 3 tài khoản mẫu: admin mật khẩu admin123 (docs/04), lan và minh mật khẩu 123456
     //   Id 1 admin (Admin), Id 2 lan (User), Id 3 minh (User)
     // Mã hóa bằng HASHBYTES cho khớp với UserStore.HashPassword
     const string SampleDataSql = """
