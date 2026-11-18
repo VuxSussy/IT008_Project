@@ -1,3 +1,5 @@
+using Microsoft.Data.SqlClient;
+
 namespace FlashcardsApp;
 
 // Chỗ app bắt đầu chạy
@@ -9,9 +11,16 @@ internal static class Program
         // Bật cài đặt chung của WinForms: chữ nét trên màn độ phân giải cao, font mặc định
         ApplicationConfiguration.Initialize();
 
-        // Lần đầu mở app: tạo cơ sở dữ liệu Flashcards trên SQL Server Express, 3 tài khoản và 30 từ mẫu (#4)
-        Database.EnsureCreated();
-
+        // Lần đầu mở app: tạo cơ sở dữ liệu Flashcards trên SQL Server Express, 3 tài khoản và dữ liệu mẫu (#4)
+        try
+        {
+            Database.EnsureCreated();
+        }
+        catch (SqlException)
+        {
+            MessageBox.Show("Chưa kết nối được SQL Server. Xem docs/01, mục Cài SQL Server.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
         // TODO (#36): bỏ dòng gán tạm dưới đây, mở hộp đăng nhập trước; bấm Thoát thì tắt app:
         //     using (var login = new LoginDialog())
         //     {

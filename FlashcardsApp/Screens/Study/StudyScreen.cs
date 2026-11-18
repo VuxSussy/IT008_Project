@@ -28,11 +28,6 @@ public partial class StudyScreen : UserControl
     {
         cards.AddRange(FlashcardStore.GetAll());
 
-        if (cards.Count == 0)
-        {
-            cards.AddRange(FlashcardStore.Load(FlashcardStore.DefaultPath));
-        }
-
         folderComboBox.Items.Clear();
         folderComboBox.Items.Add("Tất cả");
         folderComboBox.SelectedIndex = 0;

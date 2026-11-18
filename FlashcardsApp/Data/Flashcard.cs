@@ -4,6 +4,7 @@ namespace FlashcardsApp;
 // LastRating, WrongCount, LastWrongAnswer đọc từ bảng CardProgress của người đang đăng nhập; chưa học thì 0, 0, "".
 public sealed class Flashcard
 {
+    // Cột của bảng Flashcards (docs/03)
     public int Id { get; set; }
     public int FolderId { get; set; }
     public string Word { get; set; } = "";
@@ -13,11 +14,12 @@ public sealed class Flashcard
     public string ExampleTranslation { get; set; } = "";
     public string MemoryNote { get; set; } = "";
 
-    public int LastRating { get; set; }          // 0 chưa học · 1 Quên · 2 Khó · 3 Nhớ · 4 Dễ
+    // Lấy từ bảng CardProgress của người đang đăng nhập (LEFT JOIN, chưa học thì 0)
+    public int LastRating { get; set; }               // 0 = chưa học, 1 Quên, 2 Khó, 3 Nhớ, 4 Dễ
     public int WrongCount { get; set; }
     public string LastWrongAnswer { get; set; } = "";
 
-    // Tính sẵn, không lưu vào bảng
+    // Tính sẵn, không lưu trong database
     public bool IsLearned => LastRating >= 3;
     public string Category => Word.Contains(' ') ? "CỤM TỪ" : "TỪ VỰNG";
 }
