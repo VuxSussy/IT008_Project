@@ -1,3 +1,9 @@
+using System.Xml.Linq;
+using Microsoft.Data.SqlClient;
+using Microsoft.VisualBasic.ApplicationServices;
+using System.Security.Cryptography;
+using System.Text;
+
 namespace FlashcardsApp;
 
 // Đọc, ghi bảng Users: đăng nhập, đăng ký, xem và đặt lại mật khẩu cho User, điểm trình độ.
@@ -12,6 +18,36 @@ public static class UserStore
         // TODO (#36): SELECT Id, Username, Role, Rating, CreatedAt FROM Users
         //     WHERE Username = @username AND PasswordHash = @hash
         // với @hash = HashPassword(username, password). Có dòng thì tạo User, gán Session.CurrentUser = user, trả về user.
+        User? user = null;
+        using (SqlConnection conn = new SqlConnection(Database.ConnectionString))
+        {
+            conn.Open();
+            string sql = @"SELECT Id, Username, Role, Rating, CreatedAt FROM Users
+                        WHERE Username = @username AND PasswordHash = @hash";
+            using (SqlCommand cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.Parameters.AddWithValue("@hash", HashPassword(username, password));
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        user = new User();
+                        user.Id = int.Parse(reader["Id"].ToString());
+                        user.Username = reader["Username"].ToString();
+                        user.Role = reader["Role"].ToString();
+                        user.Rating = int.Parse(reader["Rating"].ToString());
+                        user.CreatedAt = DateTime.Parse(reader["CreatedAt"].ToString());
+                    }
+                }
+            }
+
+        }
+        if (user != null)
+        {
+            Session.CurrentUser = user;
+            return user;
+        }
         return null;
     }
 
@@ -20,6 +56,22 @@ public static class UserStore
     public static bool UsernameExists(string username)
     {
         // TODO (#36): SELECT COUNT(*) FROM Users WHERE Username = @username, lớn hơn 0 thì trả về true
+        using (SqlConnection conn = new SqlConnection(Database.ConnectionString))
+        {
+            conn.Open();
+            string sql = @"SELECT COUNT(*) FROM Users WHERE Username = @username";
+            using (SqlCommand cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@username", username);
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read() && reader.GetInt32(0) > 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -29,6 +81,22 @@ public static class UserStore
     {
         // TODO (#36): INSERT INTO Users (Username, PasswordHash, Role) VALUES (@username, @hash, 'User');
         // lấy Id vừa tạo bằng SCOPE_IDENTITY(), rồi INSERT INTO Folders (Name, OwnerId, IsDefault) VALUES (N'Chưa phân loại', @id, 1)
+        using (SqlConnection conn = new SqlConnection(Database.ConnectionString))
+        {
+            conn.Open();
+            string sql = @"INSERT INTO Users (Username, PasswordHash, Role)
+                        VALUES (@username, @hash, 'User');
+                        DECLARE @id INT = SCOPE_IDENTITY();
+                        INSERT INTO Folders (Name, OwnerId, IsDefault)
+                        VALUES (N'Chưa phân loại', @id, 1);";
+            using (SqlCommand cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.Parameters.AddWithValue("@hash", HashPassword(username, password));
+
+                cmd.ExecuteNonQuery();
+            }        
+        }
     }
 
     // Mọi tài khoản User kèm số liệu học, cho tab Quản trị · Người dùng.
@@ -66,6 +134,7 @@ public static class UserStore
         // TODO (#36): thêm "using System.Security.Cryptography;" và "using System.Text;" ở đầu file, rồi
         //     var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(username.ToLower() + ":" + password));
         //     return Convert.ToHexString(bytes);
-        return "";
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(username.ToLower() + ":" + password));
+        return Convert.ToHexString(bytes);
     }
 }
