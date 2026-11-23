@@ -18,6 +18,7 @@ partial class LoginDialog
     private void InitializeComponent()
     {
         brandPanel = new Panel();
+        loginButton = new StudyButton();
         usernameTextBox = new TextBox();
         confirmPasswordLabel = new Label();
         passwordLabel = new Label();
@@ -26,7 +27,6 @@ partial class LoginDialog
         modeLinkLabel = new LinkLabel();
         errorLabel = new Label();
         confirmPasswordTextBox = new TextBox();
-        loginButton = new Button();
         passwordTextBox = new TextBox();
         titleLabel = new Label();
         logoPanel = new LogoBox();
@@ -37,6 +37,7 @@ partial class LoginDialog
         // 
         // brandPanel
         // 
+        brandPanel.Controls.Add(loginButton);
         brandPanel.Controls.Add(usernameTextBox);
         brandPanel.Controls.Add(confirmPasswordLabel);
         brandPanel.Controls.Add(passwordLabel);
@@ -45,7 +46,6 @@ partial class LoginDialog
         brandPanel.Controls.Add(modeLinkLabel);
         brandPanel.Controls.Add(errorLabel);
         brandPanel.Controls.Add(confirmPasswordTextBox);
-        brandPanel.Controls.Add(loginButton);
         brandPanel.Controls.Add(passwordTextBox);
         brandPanel.Controls.Add(titleLabel);
         brandPanel.Controls.Add(logoPanel);
@@ -58,6 +58,23 @@ partial class LoginDialog
         brandPanel.Size = new Size(404, 421);
         brandPanel.TabIndex = 1;
         // 
+        // loginButton
+        // 
+        loginButton.BackColor = Color.FromArgb(15, 118, 110);
+        loginButton.BorderVisible = false;
+        loginButton.CornerRadius = 14;
+        loginButton.FlatStyle = FlatStyle.Flat;
+        loginButton.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+        loginButton.ForeColor = Color.White;
+        loginButton.Location = new Point(40, 304);
+        loginButton.Margin = new Padding(0, 0, 0, 14);
+        loginButton.Name = "loginButton";
+        loginButton.Size = new Size(318, 38);
+        loginButton.TabIndex = 2;
+        loginButton.Text = "Đăng nhập";
+        loginButton.UseVisualStyleBackColor = false;
+        loginButton.Click += loginButton_Click;
+        // 
         // usernameTextBox
         // 
         usernameTextBox.Cursor = Cursors.IBeam;
@@ -66,7 +83,7 @@ partial class LoginDialog
         usernameTextBox.MaxLength = 20;
         usernameTextBox.Name = "usernameTextBox";
         usernameTextBox.Size = new Size(318, 25);
-        usernameTextBox.TabIndex = 14;
+        usernameTextBox.TabIndex = 0;
         // 
         // confirmPasswordLabel
         // 
@@ -106,7 +123,7 @@ partial class LoginDialog
         exitButton.Location = new Point(174, 374);
         exitButton.Name = "exitButton";
         exitButton.Size = new Size(64, 28);
-        exitButton.TabIndex = 10;
+        exitButton.TabIndex = 4;
         exitButton.Text = "Thoát";
         exitButton.UseVisualStyleBackColor = true;
         exitButton.Click += exitButton_Click;
@@ -117,7 +134,7 @@ partial class LoginDialog
         modeLinkLabel.Location = new Point(288, 380);
         modeLinkLabel.Name = "modeLinkLabel";
         modeLinkLabel.Size = new Size(101, 19);
-        modeLinkLabel.TabIndex = 9;
+        modeLinkLabel.TabIndex = 3;
         modeLinkLabel.TabStop = true;
         modeLinkLabel.Text = "modeLinkLabel";
         modeLinkLabel.LinkClicked += modeLinkLabel_LinkClicked;
@@ -125,12 +142,12 @@ partial class LoginDialog
         // errorLabel
         // 
         errorLabel.BackColor = Color.PeachPuff;
-        errorLabel.BorderStyle = BorderStyle.FixedSingle;
         errorLabel.FlatStyle = FlatStyle.Flat;
         errorLabel.Font = new Font("Segoe UI", 10F);
         errorLabel.ForeColor = Color.OrangeRed;
         errorLabel.Location = new Point(40, 383);
         errorLabel.Name = "errorLabel";
+        errorLabel.Padding = new Padding(5, 0, 0, 0);
         errorLabel.Size = new Size(73, 21);
         errorLabel.TabIndex = 8;
         errorLabel.Text = "errorLabel";
@@ -145,22 +162,6 @@ partial class LoginDialog
         confirmPasswordTextBox.Size = new Size(318, 25);
         confirmPasswordTextBox.TabIndex = 7;
         // 
-        // loginButton
-        // 
-        loginButton.BackColor = Color.FromArgb(15, 122, 112);
-        loginButton.Cursor = Cursors.Hand;
-        loginButton.FlatAppearance.BorderSize = 0;
-        loginButton.FlatStyle = FlatStyle.Flat;
-        loginButton.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-        loginButton.ForeColor = Color.White;
-        loginButton.Location = new Point(40, 310);
-        loginButton.Name = "loginButton";
-        loginButton.Size = new Size(318, 38);
-        loginButton.TabIndex = 6;
-        loginButton.Text = "Đăng nhập";
-        loginButton.UseVisualStyleBackColor = false;
-        loginButton.Click += loginButton_Click;
-        // 
         // passwordTextBox
         // 
         passwordTextBox.Cursor = Cursors.IBeam;
@@ -169,7 +170,7 @@ partial class LoginDialog
         passwordTextBox.Name = "passwordTextBox";
         passwordTextBox.PasswordChar = '•';
         passwordTextBox.Size = new Size(318, 25);
-        passwordTextBox.TabIndex = 5;
+        passwordTextBox.TabIndex = 1;
         // 
         // titleLabel
         // 
@@ -237,7 +238,6 @@ partial class LoginDialog
     private Label taglineLabel;
     private Label titleLabel;
     private TextBox passwordTextBox;
-    private Button loginButton;
     private Label errorLabel;
     private TextBox confirmPasswordTextBox;
     private Label confirmPasswordLabel;
@@ -247,4 +247,5 @@ partial class LoginDialog
     private LinkLabel modeLinkLabel;
     private TextBox usernameTextBox;
     private TextBox textBox1;
+    private StudyButton loginButton;
 }

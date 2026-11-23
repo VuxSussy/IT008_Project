@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using System.Drawing.Drawing2D;
 
 namespace FlashcardsApp;
 
@@ -28,7 +29,7 @@ public partial class LoginDialog : Form
         User user = null;
         try
         {
-            if (confirmPassword == "")
+            if (!isRegisterMode)
             {
                 user = UserStore.Login(username, password);
                 if (user != null)
@@ -39,6 +40,7 @@ public partial class LoginDialog : Form
                 else
                 {
                     errorLabel.Text = "Sai tên đăng nhập hoặc mật khẩu";
+                    BoGoc(errorLabel, 20);
                     errorLabel.Show();
                     loginButton.Location = new Point(errorLabel.Left, errorLabel.Top + 30);
                     modeLinkLabel.Location = new Point(loginButton.Left + modeLinkLabel.Width / 4, loginButton.Top + 50);
@@ -50,6 +52,7 @@ public partial class LoginDialog : Form
                 if (error != null)
                 {
                     errorLabel.Text = error;
+                    BoGoc(errorLabel, 20);
                     errorLabel.Show();
                     loginButton.Location = new Point(errorLabel.Left, errorLabel.Top + 30);
                     modeLinkLabel.Location = new Point(loginButton.Left + modeLinkLabel.Width / 4, loginButton.Top + 50);
@@ -77,6 +80,7 @@ public partial class LoginDialog : Form
         //   - tên chưa có ai dùng: UserStore.UsernameExists(username)
         //   - mật khẩu ít nhất 6 ký tự: "Mật khẩu cần ít nhất 6 ký tự."
         //   - hai ô mật khẩu giống nhau
+
         if (username.Length < 3 || username.Length > 20) { return "Tên đăng nhập phải từ 3 đến 20 ký tự!"; }
         if (!Regex.IsMatch(username, "^[a-zA-Z0-9]{3,20}$")) { return "Tên đăng nhập chỉ nhận số và chữ cái!"; }
         if (UserStore.UsernameExists(username)) { return "Tên đăng nhập đã tồn tại!"; }
@@ -135,6 +139,19 @@ public partial class LoginDialog : Form
         }
         passwordTextBox.Clear();
         confirmPasswordTextBox.Clear();
+    }
+    void BoGoc(Control control, int radius)
+    {
+        GraphicsPath path = new GraphicsPath();
+
+        path.AddArc(0, 0, radius, radius, 180, 90);
+        path.AddArc(control.Width - radius, 0, radius, radius, 270, 90);
+        path.AddArc(control.Width - radius, control.Height - radius, radius, radius, 0, 90);
+        path.AddArc(0, control.Height - radius, radius, radius, 90, 90);
+        path.CloseFigure();
+
+        control.Region = new Region(path);
+        path.Dispose();
     }
 
     private void modeLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
