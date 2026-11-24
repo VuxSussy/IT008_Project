@@ -77,7 +77,7 @@ public partial class MainWindow : Form
         matchButton.Selected = currentScreen is MatchScreen;
         adminButton.Selected = currentScreen is AdminScreen;
 
-        var mistakeCount = CountMistakes();
+        var mistakeCount = StudyStore.GetMistakes().Count;
         if (mistakeCount > 0)
             mistakeButton.Badge = mistakeCount.ToString();
         else

@@ -1,4 +1,5 @@
 using Microsoft.Data.SqlClient;
+using Microsoft.VisualBasic.ApplicationServices;
 
 namespace FlashcardsApp;
 
@@ -15,16 +16,45 @@ public static class StudyStore
         //   - rating 1 hoặc 2: WrongCount + 1
         //   - typedAnswer khác null: LastWrongAnswer = typedAnswer; rating 3, 4 thì LastWrongAnswer = ''
         // Ghi xong gọi ActivityStore.MarkToday()
+
+        int wrongDelta = (rating == 1 || rating == 2) ? 1 : 0;
+
         using var conn = new SqlConnection(Database.ConnectionString);
         using var cmd = new SqlCommand("""
+            
             IF EXISTS (
                 SELECT *
                 FROM CardProgress
                 WHERE UserId = @useId AND CardId = @cardId
             )
-            
+            BEGIN
+                UPDATE CardProgress
+                SET
+                    LastRating = @rating,
+                    WrongCount = WrongCount + @WrongCountDelta,
+                    LastWrongAnswer = CASE
+                                    WHEN @rating IN (3, 4) THEN ''
+                                    WHEN @typedAnswer IS NOT NULL THEN @typedAnswer
+                                    ELSE LastWrongAnswer
+                    END,
+                WHERE UserId = @useId AND CardId = @cardId
+            END
 
-        """, conn);
+            ELSE
+            BEGIN
+                INSERT INTO CardProgress (UserId, CardId, LastRating, WrongCount, LastWrongAnswer)
+                VALUES (
+                    @userId, @cardId, @rating, @WrongCountDelta, ISNULL(@typedAnswer, '')
+                    );
+            END
+            
+            """, conn);
+
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+        cmd.Parameters.AddWithValue("@cardId", cardId);
+        cmd.Parameters.AddWithValue("@rating", rating);
+        cmd.Parameters.AddWithValue("@WrongCountDelta", wrongDelta);
+        cmd.Parameters.AddWithValue("@typedAnswer", (object?)typedAnswer ?? DBNull.Value);
 
         ActivityStore.MarkToday();
     }
