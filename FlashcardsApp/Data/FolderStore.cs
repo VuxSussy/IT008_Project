@@ -62,6 +62,17 @@ public static class FolderStore
     public static void Add(string name)
     {
         // TODO (#7): INSERT INTO Folders (Name, OwnerId) VALUES (@name, @userId)
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            INSERT INTO Folders (Name, OwnerId)
+            VALUES (@name, @userId)
+            """, conn);
+
+        cmd.Parameters.AddWithValue("@name", name);
+        cmd.Parameters.AddWithValue("useId", Session.CurrentUser!.Id);
+
+        conn.Open();
+        cmd.ExecuteNonQuery();
     }
 
     // Đổi tên thư mục. Thư mục "Chưa phân loại" không đổi tên được.
