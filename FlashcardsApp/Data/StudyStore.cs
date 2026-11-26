@@ -1,5 +1,4 @@
 using Microsoft.Data.SqlClient;
-using Microsoft.VisualBasic.ApplicationServices;
 
 namespace FlashcardsApp;
 
@@ -25,7 +24,7 @@ public static class StudyStore
             IF EXISTS (
                 SELECT *
                 FROM CardProgress
-                WHERE UserId = @useId AND CardId = @cardId
+                WHERE UserId = @userId AND CardId = @cardId
             )
             BEGIN
                 UPDATE CardProgress
@@ -36,7 +35,7 @@ public static class StudyStore
                                     WHEN @rating IN (3, 4) THEN ''
                                     WHEN @typedAnswer IS NOT NULL THEN @typedAnswer
                                     ELSE LastWrongAnswer
-                    END,
+                    END
                 WHERE UserId = @useId AND CardId = @cardId
             END
 
@@ -55,6 +54,9 @@ public static class StudyStore
         cmd.Parameters.AddWithValue("@rating", rating);
         cmd.Parameters.AddWithValue("@WrongCountDelta", wrongDelta);
         cmd.Parameters.AddWithValue("@typedAnswer", (object?)typedAnswer ?? DBNull.Value);
+
+        conn.Open();
+        cmd.ExecuteNonQuery();
 
         ActivityStore.MarkToday();
     }
@@ -75,11 +77,11 @@ public static class StudyStore
             JOIN Folders fo ON fo.Id = f.FolderId
             LEFT JOIN CardProgress p ON p.CardId = f.Id AND p.UserId = @userId
 
-            WHERE fo.OwnerId = @userId
-               OR fo.CourseId IS NOT NULL
-               OR CAST(GETDATE() AS DATE) BETWEEN fo.StartDate AND fo.EndDate
-               AND LastRating IN (1, 2)
-            ORDER BY WrongCount DESC
+            WHERE (fo.OwnerId = @userId
+                    OR fo.CourseId IS NOT NULL
+                    OR CAST(GETDATE() AS DATE) BETWEEN fo.StartDate AND fo.EndDate)
+               AND p.LastRating IN (1, 2)
+            ORDER BY p.WrongCount DESC
             """, conn);
         cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
         return FlashcardStore.Read(cmd);
