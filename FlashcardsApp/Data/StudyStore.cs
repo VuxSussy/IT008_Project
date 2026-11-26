@@ -33,10 +33,10 @@ public static class StudyStore
                     WrongCount = WrongCount + @WrongCountDelta,
                     LastWrongAnswer = CASE
                                     WHEN @rating IN (3, 4) THEN ''
-                                    WHEN @typedAnswer IS NOT NULL THEN @typedAnswer
-                                    ELSE LastWrongAnswer
+                                    ELSE ISNULL(@typedAnswer, '')
+                                    END
                     END
-                WHERE UserId = @useId AND CardId = @cardId
+                WHERE UserId = @userId AND CardId = @cardId
             END
 
             ELSE
@@ -65,8 +65,6 @@ public static class StudyStore
     // Ai gọi: MistakeScreen, MainWindow (số trên nút Sổ lỗi), OverviewScreen (dòng Sổ lỗi).
     public static List<Flashcard> GetMistakes() 
     {
-        var cards = new List<Flashcard>();
-
         // TODO (#12): giống FlashcardStore.GetAll, thêm WHERE LastRating IN (1, 2) ORDER BY WrongCount DESC
         using var conn = new SqlConnection(Database.ConnectionString);
         using var cmd = new SqlCommand("""
@@ -84,6 +82,7 @@ public static class StudyStore
             ORDER BY p.WrongCount DESC
             """, conn);
         cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+
         return FlashcardStore.Read(cmd);
     }
 }
