@@ -1,3 +1,4 @@
+using System.Xml.Linq;
 using Microsoft.Data.SqlClient;
 
 namespace FlashcardsApp;
@@ -153,6 +154,26 @@ public static class FolderStore
 
         conn.Open();
         cmd.ExecuteNonQuery();
+    }
+    public static bool NameExists(string name)
+    {
+        //FolderStore.NameExists(name): người đang đăng nhập đã có thư mục tên này chưa. Màn gọi hàm này trước khi thêm hoặc đổi tên
+
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            SELECT COUNT(*)
+            FROM   Folders
+            WHERE  OwnerId = @userId
+                   AND Name = @name
+            """
+            , conn);
+
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+        cmd.Parameters.AddWithValue("@name", name.Trim());
+
+        conn.Open();
+        int count = Convert.ToInt32(cmd.ExecuteScalar());
+        return count > 0;
     }
 
     // ===== Thư mục theo mùa (#43) =====

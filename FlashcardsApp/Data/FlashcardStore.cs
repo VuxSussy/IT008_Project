@@ -77,18 +77,68 @@ public static class FlashcardStore
     public static void Add(Flashcard card)
     {
         // TODO (#7): code mẫu ở docs/02 mục 4, INSERT đủ các cột của docs/03
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            INSERT INTO Flashcards (FolderId, Word, Meaning, Pronunciation, Example, ExampleTranslation, MemoryNote)
+            VALUES (@folderId, @word, @meaning, @pronunciation, @example, @exampleTranslation, @memoryNote)
+            """
+            , conn);
+        cmd.Parameters.AddWithValue("@folderId", card.FolderId);
+        cmd.Parameters.AddWithValue("@word", card.Word);
+        cmd.Parameters.AddWithValue("@meaning", card.Meaning);
+        cmd.Parameters.AddWithValue("@pronunciation", card.Pronunciation ?? string.Empty);
+        cmd.Parameters.AddWithValue("@example", card.Example ?? string.Empty);
+        cmd.Parameters.AddWithValue("@exampleTranslation", card.ExampleTranslation ?? string.Empty);
+        cmd.Parameters.AddWithValue("@memoryNote", card.MemoryNote ?? string.Empty);
+
+        conn.Open();
+        cmd.ExecuteNonQuery();
     }
 
     // Sửa một từ, tìm theo card.Id. Ai gọi: màn Thư mục, nút sửa trong bảng từ.
     public static void Update(Flashcard card)
     {
         // TODO (#7)
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            UPDATE Flashcards
+            SET FolderId = @folderId,
+                Word = @word,
+                Meaning = @meaning,
+                Pronunciation = @pronunciation,
+                Example = @example,
+                ExampleTranslation = @exampleTranslation,
+                MemoryNote = @memoryNote
+            WHERE Id = @id
+            """, conn);
+
+        cmd.Parameters.AddWithValue("@id", card.Id);
+        cmd.Parameters.AddWithValue("@folderId", card.FolderId);
+        cmd.Parameters.AddWithValue("@word", card.Word);
+        cmd.Parameters.AddWithValue("@meaning", card.Meaning);
+        cmd.Parameters.AddWithValue("@pronunciation", card.Pronunciation ?? string.Empty);
+        cmd.Parameters.AddWithValue("@example", card.Example ?? string.Empty);
+        cmd.Parameters.AddWithValue("@exampleTranslation", card.ExampleTranslation ?? string.Empty);
+        cmd.Parameters.AddWithValue("@memoryNote", card.MemoryNote ?? string.Empty);
+
+        conn.Open();
+        cmd.ExecuteNonQuery();
     }
 
     // Xóa một từ. Ai gọi: màn Thư mục, nút xóa trong bảng từ (sau khi hỏi lại).
     public static void Delete(int id)
     {
         // TODO (#7)
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            DELETE FROM Flashcards
+            WHERE Id = @id
+            """
+            , conn);
+        cmd.Parameters.AddWithValue("@id", id);
+
+        conn.Open();
+        cmd.ExecuteNonQuery();
     }
 
     // true nếu thư mục của người đang đăng nhập đã có từ trùng cả từ lẫn nghĩa. SQL Server so không phân biệt hoa thường, nên so thẳng trong câu SQL.
@@ -96,6 +146,24 @@ public static class FlashcardStore
     {
         // TODO (#7): SELECT COUNT(*) FROM Flashcards f JOIN Folders d ON d.Id = f.FolderId
         //     WHERE d.OwnerId = @userId AND f.Word = @word AND f.Meaning = @meaning
-        return false;
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            SELECT COUNT(*)
+            FROM   Flashcards f
+                   JOIN Folders d
+                   ON  d.Id = f.FolderId
+            WHERE  d.OwnerId = @userId
+                   AND f.Word = @word
+                   AND f.Meaning = @meaning
+            """
+            , conn);
+
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+        cmd.Parameters.AddWithValue("@word", word.Trim());
+        cmd.Parameters.AddWithValue("@meaning", meaning.Trim());
+
+        conn.Open();
+        int count = Convert.ToInt32(cmd.ExecuteScalar());
+        return count > 0;
     }
 }
