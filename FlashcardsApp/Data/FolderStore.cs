@@ -69,22 +69,90 @@ public static class FolderStore
             """, conn);
 
         cmd.Parameters.AddWithValue("@name", name);
-        cmd.Parameters.AddWithValue("useId", Session.CurrentUser!.Id);
+        cmd.Parameters.AddWithValue("userId", Session.CurrentUser!.Id);
 
         conn.Open();
-        cmd.ExecuteNonQuery();
+
+        try
+        {
+            cmd.ExecuteNonQuery();
+        }
+        catch (SqlException ex) when (ex.Number is 2601 or 2627)
+        {
+            MessageBox.Show("Tên thư mục đã tồn tại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
     }
 
     // Đổi tên thư mục. Thư mục "Chưa phân loại" không đổi tên được.
     public static void Rename(int id, string name)
     {
         // TODO (#7): UPDATE Folders SET Name = @name WHERE Id = @id AND IsDefault = 0
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            UPDATE Folders
+            SET Name = @name
+            WHERE Id = @id AND IsDefault = 0 AND OwnerId = @userId
+            """, conn);
+
+        cmd.Parameters.AddWithValue("@name", name);
+        cmd.Parameters.AddWithValue("@id", id);
+        cmd.Parameters.AddWithValue("userId", Session.CurrentUser!.Id);
+
+        conn.Open();
+        try
+        {
+            cmd.ExecuteNonQuery();
+        }
+        catch (SqlException ex) when (ex.Number is 2601 or 2627)
+        {
+            MessageBox.Show("Tên thư mục đã tồn tại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     // Chuyển các từ trong thư mục về "Chưa phân loại" của người đó, rồi xóa thư mục.
     public static void Delete(int id)
     {
         // TODO (#7)
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            SET XACT_ABORT ON;
+
+            DECLARE @defaultId INT;
+
+            IF NOT EXISTS (
+                SELECT 1 FROM Folders
+                WHERE Id = @id AND OwnerId = @userId AND IsDefault = 0
+            )
+            RETURN;
+
+            SELECT @defaultId = Id
+            FROM Folders
+            WHERE OwnerId = @userId AND IsDefault = 1;
+
+            IF @defaultId IS NULL
+                RETURN;
+
+            BEGIN TRANSACTION;
+
+            UPDATE Flashcards
+            SET FolderId = @defaultId
+            WHERE FolderId = @id;
+
+            DELETE FROM DailyChallenges
+            WHERE FolderId = @id;
+
+            DELETE FROM Folders
+            WHERE Id = @id;
+
+            COMMIT;
+        """, conn);
+
+        cmd.Parameters.AddWithValue("@id", id);
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+
+        conn.Open();
+        cmd.ExecuteNonQuery();
     }
 
     // ===== Thư mục theo mùa (#43) =====
