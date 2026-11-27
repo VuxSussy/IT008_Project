@@ -70,7 +70,7 @@ public static class FolderStore
             """, conn);
 
         cmd.Parameters.AddWithValue("@name", name);
-        cmd.Parameters.AddWithValue("userId", Session.CurrentUser!.Id);
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
 
         conn.Open();
 
@@ -98,7 +98,7 @@ public static class FolderStore
 
         cmd.Parameters.AddWithValue("@name", name);
         cmd.Parameters.AddWithValue("@id", id);
-        cmd.Parameters.AddWithValue("userId", Session.CurrentUser!.Id);
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
 
         conn.Open();
         try
