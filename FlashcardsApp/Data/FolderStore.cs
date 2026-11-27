@@ -1,3 +1,4 @@
+using System.Xml.Linq;
 using Microsoft.Data.SqlClient;
 
 namespace FlashcardsApp;
@@ -62,18 +63,117 @@ public static class FolderStore
     public static void Add(string name)
     {
         // TODO (#7): INSERT INTO Folders (Name, OwnerId) VALUES (@name, @userId)
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            INSERT INTO Folders (Name, OwnerId)
+            VALUES (@name, @userId)
+            """, conn);
+
+        cmd.Parameters.AddWithValue("@name", name);
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+
+        conn.Open();
+
+        try
+        {
+            cmd.ExecuteNonQuery();
+        }
+        catch (SqlException ex) when (ex.Number is 2601 or 2627)
+        {
+            MessageBox.Show("Tên thư mục đã tồn tại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
     }
 
     // Đổi tên thư mục. Thư mục "Chưa phân loại" không đổi tên được.
     public static void Rename(int id, string name)
     {
         // TODO (#7): UPDATE Folders SET Name = @name WHERE Id = @id AND IsDefault = 0
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            UPDATE Folders
+            SET Name = @name
+            WHERE Id = @id AND IsDefault = 0 AND OwnerId = @userId
+            """, conn);
+
+        cmd.Parameters.AddWithValue("@name", name);
+        cmd.Parameters.AddWithValue("@id", id);
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+
+        conn.Open();
+        try
+        {
+            cmd.ExecuteNonQuery();
+        }
+        catch (SqlException ex) when (ex.Number is 2601 or 2627)
+        {
+            MessageBox.Show("Tên thư mục đã tồn tại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     // Chuyển các từ trong thư mục về "Chưa phân loại" của người đó, rồi xóa thư mục.
     public static void Delete(int id)
     {
         // TODO (#7)
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            SET XACT_ABORT ON;
+
+            DECLARE @defaultId INT;
+
+            IF NOT EXISTS (
+                SELECT 1 FROM Folders
+                WHERE Id = @id AND OwnerId = @userId AND IsDefault = 0
+            )
+            RETURN;
+
+            SELECT @defaultId = Id
+            FROM Folders
+            WHERE OwnerId = @userId AND IsDefault = 1;
+
+            IF @defaultId IS NULL
+                RETURN;
+
+            BEGIN TRANSACTION;
+
+            UPDATE Flashcards
+            SET FolderId = @defaultId
+            WHERE FolderId = @id;
+
+            DELETE FROM DailyChallenges
+            WHERE FolderId = @id;
+
+            DELETE FROM Folders
+            WHERE Id = @id;
+
+            COMMIT;
+        """, conn);
+
+        cmd.Parameters.AddWithValue("@id", id);
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+
+        conn.Open();
+        cmd.ExecuteNonQuery();
+    }
+    public static bool NameExists(string name)
+    {
+        //FolderStore.NameExists(name): người đang đăng nhập đã có thư mục tên này chưa. Màn gọi hàm này trước khi thêm hoặc đổi tên
+
+        using var conn = new SqlConnection(Database.ConnectionString);
+        using var cmd = new SqlCommand("""
+            SELECT COUNT(*)
+            FROM   Folders
+            WHERE  OwnerId = @userId
+                   AND Name = @name
+            """
+            , conn);
+
+        cmd.Parameters.AddWithValue("@userId", Session.CurrentUser!.Id);
+        cmd.Parameters.AddWithValue("@name", name.Trim());
+
+        conn.Open();
+        int count = Convert.ToInt32(cmd.ExecuteScalar());
+        return count > 0;
     }
 
     // ===== Thư mục theo mùa (#43) =====
